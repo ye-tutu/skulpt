@@ -171,13 +171,9 @@ class ReTests(unittest.TestCase):
         self.assertTrue(val is not None)
         def helper(match,expected):
             if type(expected) == str:
-                if match:
-                    if match.group(0)==expected: return True
-                    else: return False
-                else: return False
+                return bool(match and match.group(0)==expected)
             else:
-                if match: return True == expected
-                else: return False == expected
+                return expected == True if match else expected == False
         self.assertTrue(helper(re.search(".",""),False))
         self.assertTrue(helper(re.search(".","a"),True))
         self.assertTrue(helper(re.search(".a","a"),False))
@@ -270,11 +266,11 @@ class ReTests(unittest.TestCase):
     def test_groups(self):
         m = re.match('([0-9]+)([a-z]+)','345abu')
         self.assertEqual(m.groups(), ('345', 'abu'))
-        self.assertEqual(m.group(0), "345abu")
-        self.assertEqual(m.group(1), "345")
-        self.assertEqual(m.group(2), "abu")
+        self.assertEqual(m[0], "345abu")
+        self.assertEqual(m[1], "345")
+        self.assertEqual(m[2], "abu")
         m = re.match('([0-9]+)([a-z]+)([A-Z]*)','345abu')
-        self.assertEqual(m.groups('default'), tuple(['345','abu','']))
+        self.assertEqual(m.groups('default'), ('345', 'abu', ''))
 
     def test_split(self):
         a = re.split("a", "A stitch in time saves nine.", flags=re.IGNORECASE)

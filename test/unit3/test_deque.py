@@ -17,11 +17,11 @@ class TestBasic(unittest.TestCase):
         self.assertEqual(list(d), list(range(-200, 400)))
         self.assertEqual(len(d), 600)
 
-        left = [d.popleft() for i in range(250)]
+        left = [d.popleft() for _ in range(250)]
         self.assertEqual(left, list(range(-200, 50)))
         self.assertEqual(list(d), list(range(50, 400)))
 
-        right = [d.pop() for i in range(250)]
+        right = [d.pop() for _ in range(250)]
         right.reverse()
         self.assertEqual(right, list(range(150, 400)))
         self.assertEqual(list(d), list(range(50, 150)))
@@ -83,17 +83,18 @@ class TestBasic(unittest.TestCase):
         # test issue11004
         # block advance failed after rotation aligned elements on right side of block
         d = deque([None]*16)
-        for i in range(len(d)):
+        for _ in range(len(d)):
             d.rotate(-1)
         d.rotate(1)
         self.assertEqual(d.count(1), 0)
         self.assertEqual(d.count(None), 16)
         
     def test_comparisons(self):
-        d = deque('xabc'); d.popleft()
+        d = deque('xabc')
+        d.popleft()
         for e in [d, deque('abc'), deque('ab'), deque(), list(d)]:
             self.assertEqual(d==e, type(d)==type(e) and list(d)==list(e))
-            self.assertEqual(d!=e, not(type(d)==type(e) and list(d)==list(e)))
+            self.assertEqual(d!=e, type(d) != type(e) or list(d) != list(e))
 
         args = map(deque, ('', 'a', 'b', 'ab', 'ba', 'abc', 'xba', 'xabc', 'cba'))
         for x in args:
@@ -310,7 +311,7 @@ class TestBasic(unittest.TestCase):
     
     def test_reverse(self):
         n = 500         # O(n**2) test, don't make this too big
-        data = [random.random() for i in range(n)]
+        data = [random.random() for _ in range(n)]
         for i in range(n):
             d = deque(data[:i])
             r = d.reverse()
@@ -337,7 +338,7 @@ class TestBasic(unittest.TestCase):
             d = deque(s)
             e = deque(d)
             d.rotate(i)         # check vs. rot(1) n times
-            for j in range(i):
+            for _ in range(i):
                 e.rotate(1)
             self.assertEqual(tuple(d), tuple(e))
             d.rotate(-i)        # check that it works in reverse
@@ -349,7 +350,7 @@ class TestBasic(unittest.TestCase):
             d = deque(s)
             e = deque(d)
             d.rotate(-i)
-            for j in range(i):
+            for _ in range(i):
                 e.rotate(-1)    # check vs. rot(-1) n times
             self.assertEqual(tuple(d), tuple(e))
             d.rotate(i)         # check that it works in reverse
@@ -361,7 +362,7 @@ class TestBasic(unittest.TestCase):
         e = deque(s)
         e.rotate(BIG+17)        # verify on long series of rotates
         dr = d.rotate
-        for i in range(BIG+17):
+        for _ in range(BIG+17):
             dr()
         self.assertEqual(tuple(d), tuple(e))
 
@@ -463,7 +464,6 @@ class TestBasic(unittest.TestCase):
                              list(range(BIG-size, BIG)))
                              
     def test_big_queue_popleft(self):
-        pass
         d = deque()
         append, pop = d.append, d.popleft
         for i in range(BIG):

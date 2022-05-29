@@ -57,10 +57,10 @@ class TypeFunctionTest(unittest.TestCase):
         d = {1: 2}
         check = 3 in d
         self.assertEqual(type(check), bool)
-        s = set([1, 2, 3])
+        s = {1, 2, 3}
         check = s.isdisjoint(s)
         self.assertEqual(type(check), bool)
-        s = set([1, 2, 3])
+        s = {1, 2, 3}
         check = s.issubset(s)
         self.assertEqual(type(check), bool)
         z = isinstance(5, int)
@@ -81,10 +81,10 @@ class TypeFunctionTest(unittest.TestCase):
         self.assertEqual(type(check), type(None))
         check = lst2.remove(4)
         self.assertEqual(type(check), type(None))
-        s = set([1, 2, 3])
+        s = {1, 2, 3}
         check = s.update(s)
         self.assertEqual(type(check), type(None))
-        s2 = set([2, 3])
+        s2 = {2, 3}
         check = s.intersection_update(s2)
         self.assertEqual(type(check), type(None))
         check = s.difference_update(s2)

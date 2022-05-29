@@ -41,9 +41,8 @@ class IterInheritsTestCase(unittest.TestCase):
             def next(self): # Python 3: def __next__(self)
                 if self.current > self.high:
                     raise StopIteration
-                else:
-                    self.current += 1
-                    return self.current - 1
+                self.current += 1
+                return self.current - 1
 
         l = tuple(Counter(1,12))
         print l

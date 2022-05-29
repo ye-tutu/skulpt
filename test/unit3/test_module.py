@@ -13,7 +13,7 @@ class Descr:
 class FullLoader:
     @classmethod
     def module_repr(cls, m):
-        return "<module '{}' (crafted)>".format(m.__name__)
+        return f"<module '{m.__name__}' (crafted)>"
 
 class BareLoader:
     pass
@@ -28,7 +28,7 @@ class ModuleTests(unittest.TestCase):
         # self.assertRaises(SystemError, dir, foo)
         try:
             s = foo.__name__
-            self.fail("__name__ = %s" % repr(s))
+            self.fail(f"__name__ = {repr(s)}")
         except AttributeError:
             pass
         self.assertEqual(foo.__doc__, ModuleType.__doc__)
@@ -212,8 +212,7 @@ class ModuleTests(unittest.TestCase):
         # Yes, a class not an instance.
         m.__loader__ = BareLoader
         loader_repr = repr(BareLoader)
-        self.assertEqual(
-            repr(m), "<module '?' ({})>".format(loader_repr))
+        self.assertEqual(repr(m), f"<module '?' ({loader_repr})>")
 
     def test_module_repr_with_full_loader_but_no_name(self):
         # m.__loader__.module_repr() will fail because the module has no
@@ -224,16 +223,14 @@ class ModuleTests(unittest.TestCase):
         # Yes, a class not an instance.
         m.__loader__ = FullLoader
         loader_repr = repr(FullLoader)
-        self.assertEqual(
-            repr(m), "<module '?' ({})>".format(loader_repr))
+        self.assertEqual(repr(m), f"<module '?' ({loader_repr})>")
 
     def test_module_repr_with_bare_loader(self):
         m = ModuleType('foo')
         # Yes, a class not an instance.
         m.__loader__ = BareLoader
         module_repr = repr(BareLoader)
-        self.assertEqual(
-            repr(m), "<module 'foo' ({})>".format(module_repr))
+        self.assertEqual(repr(m), f"<module 'foo' ({module_repr})>")
 
     def test_module_repr_with_full_loader(self):
         m = ModuleType('foo')

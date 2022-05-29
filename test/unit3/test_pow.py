@@ -15,7 +15,7 @@ class PowTest(unittest.TestCase):
                 self.assertEqual(pow(type(i), 3), i*i*i)
 
             pow2 = 1
-            for i in range(0, 31):
+            for i in range(31):
                 self.assertEqual(pow(2, i), pow2)
                 if i != 30 : pow2 = pow2*2
 
@@ -43,8 +43,6 @@ class PowTest(unittest.TestCase):
             asseq = self.assertAlmostEqual
         elif type == int:
             jl = 0
-        elif type == int:
-            jl, jh = 0, 15
         for i in range(il, ih+1):
             for j in range(jl, jh+1):
                 for k in range(kl, kh+1):
@@ -80,7 +78,7 @@ class PowTest(unittest.TestCase):
         self.assertEqual(pow(5,2) % -8, pow(5,2,-8))
 
         for i in range(-10, 11):
-            for j in range(0, 6):
+            for j in range(6):
                 for k in range(-7, 11):
                     if j >= 0 and k != 0:
                         self.assertEqual(
@@ -111,11 +109,11 @@ class PowTest(unittest.TestCase):
         eq(pow(a, -1.23e167), 1.0)
         for b in range(-10, 11):
             eq(pow(a, float(b)), b & 1 and -1.0 or 1.0)
-        for n in range(0, 100):
+        for n in range(100):
             fiveto = float(5 ** n)
             # For small n, fiveto will be odd.  Eventually we run out of
             # mantissa bits, though, and thereafer fiveto will be even.
-            expected = fiveto % 2.0 and -1.0 or 1.0
+            expected = -1.0 if fiveto % 2.0 else 1.0
             eq(pow(a, fiveto), expected)
             eq(pow(a, -fiveto), expected)
         eq(expected, 1.0)   # else we didn't push fiveto to evenness

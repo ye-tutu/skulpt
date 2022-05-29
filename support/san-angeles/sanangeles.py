@@ -211,9 +211,9 @@ def createGroundPlane(gl, shader, random):
     for y in range(yBegin, yEnd):
         for x in range(xBegin, xEnd):
             color = (random.uInt() & 0x4f) + 81
-            for i in range(6):
+            for _ in range(6):
                 colors.extend([color, color, color, 0])
-            for i in range(6):
+            for _ in range(6):
                 xm = x + ((0x1c >> a) & 1)
                 ym = y + ((0x31 >> a) & 1)
                 m = math.cos(xm * 2) * math.sin(ym * 4) * 0.75
@@ -289,7 +289,7 @@ def createSuperShape(shader, params):
     colors = []
     normals = []
 
-    baseColor = [(random.uInt() % 155 + 100) / 255.0 for x in range(3)]
+    baseColor = [(random.uInt() % 155 + 100) / 255.0 for _ in range(3)]
 
     currentVertex = 0
 
@@ -310,7 +310,7 @@ def createSuperShape(shader, params):
                 pb = superShapeMap(r2, r1, t2, p1)
                 pc = superShapeMap(r2, r3, r2, p2)
                 pd = superShapeMap(r0, r3, t1, p2)
-                
+
                 # kludge to set lower edge of the object to fixed level
                 if latitude == latitudeBegin + 1:
                     pa.z = pb.z = 0
@@ -320,7 +320,7 @@ def createSuperShape(shader, params):
 
                 n = gl.cross(v1, v2)
 
-                
+
                 # Pre-normalization of the normals is disabled here because
                 # they will be normalized anyway later due to automatic
                 # normalization (NORMALIZE). It is enabled because the
@@ -328,21 +328,41 @@ def createSuperShape(shader, params):
                 #
                 # Note we have to normalize by hand in the shader
                 ca = pa.z + 0.5
-                for i in range(6):
+                for _ in range(6):
                     normals.extend([n.x, n.y, n.z])
 
-                for i in range(6):
-                    colors.append(clamp(ca * baseColor[0] * 255))
-                    colors.append(clamp(ca * baseColor[1] * 255))
-                    colors.append(clamp(ca * baseColor[2] * 255))
-                    colors.append(0)
+                for _ in range(6):
+                    colors.extend(
+                        (
+                            clamp(ca * baseColor[0] * 255),
+                            clamp(ca * baseColor[1] * 255),
+                            clamp(ca * baseColor[2] * 255),
+                            0,
+                        )
+                    )
 
-                vertices.extend([pa.x, pa.y, pa.z])
-                vertices.extend([pb.x, pb.y, pb.z])
-                vertices.extend([pd.x, pd.y, pd.z])
-                vertices.extend([pb.x, pb.y, pb.z])
-                vertices.extend([pc.x, pc.y, pc.z])
-                vertices.extend([pd.x, pd.y, pd.z])
+                vertices.extend(
+                    [
+                        pa.x,
+                        pa.y,
+                        pa.z,
+                        pb.x,
+                        pb.y,
+                        pb.z,
+                        pd.x,
+                        pd.y,
+                        pd.z,
+                        pb.x,
+                        pb.y,
+                        pb.z,
+                        pc.x,
+                        pc.y,
+                        pc.z,
+                        pd.x,
+                        pd.y,
+                        pd.z,
+                    ]
+                )
 
     return GlObject(gl, shader, vertices, colors, normals)
 

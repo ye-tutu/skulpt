@@ -18,12 +18,11 @@ class ComplexTest(unittest.TestCase):
             else:
                 unittest.TestCase.assertAlmostEqual(self, a.real, b)
                 unittest.TestCase.assertAlmostEqual(self, a.imag, 0.)
+        elif isinstance(b, complex):
+            unittest.TestCase.assertAlmostEqual(self, a, b.real)
+            unittest.TestCase.assertAlmostEqual(self, 0., b.imag)
         else:
-            if isinstance(b, complex):
-                unittest.TestCase.assertAlmostEqual(self, a, b.real)
-                unittest.TestCase.assertAlmostEqual(self, 0., b.imag)
-            else:
-                unittest.TestCase.assertAlmostEqual(self, a, b)
+            unittest.TestCase.assertAlmostEqual(self, a, b)
 
     def assertCloseAbs(self, x, y, eps=1e-9):
         """Return true iff floats x and y "are close"."""
@@ -92,7 +91,7 @@ class ComplexTest(unittest.TestCase):
         self.check_div(complex(1e-200, 1e-200), 1+0j)
 
         # Just for fun.
-        for i in range(100):
+        for _ in range(100):
             self.check_div(complex(random(), random()),
                            complex(random(), random()))
 
@@ -221,7 +220,7 @@ class ComplexTest(unittest.TestCase):
         self.assertRaises(ValueError, pow, a, b, 0)
 
     def test_boolcontext(self):
-        for i in range(100):
+        for _ in range(100):
             self.assertTrue(complex(random() + 1e-6, random() + 1e-6))
         self.assertTrue(not complex(0.0, 0.0))
 

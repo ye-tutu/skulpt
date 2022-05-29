@@ -40,8 +40,7 @@ NEVER_EQ = _NEVER_EQ()
 # This is used for checking the constructor (here and in test_deque.py)
 def iterfunc(seqn):
     'Regular generator'
-    for i in seqn:
-        yield i
+    yield from seqn
 
 class Sequence:
     'Sequence using __getitem__'
@@ -69,8 +68,7 @@ class IterGen:
         self.seqn = seqn
         self.i = 0
     def __iter__(self):
-        for val in self.seqn:
-            yield val
+        yield from self.seqn
 
 class IterNextOnly:
     'Missing __getitem__ and __iter__'
@@ -207,7 +205,7 @@ class CommonTest(unittest.TestCase):
         l = [0, 1, 2, 3, 4]
         u = self.type2test(l)
 
-        self.assertEqual(u[0:0], self.type2test())
+        self.assertEqual(u[:0], self.type2test())
         self.assertEqual(u[1:2], self.type2test([1]))
         self.assertEqual(u[-2:-1], self.type2test([3]))
         self.assertEqual(u[-1000:1000], u)
@@ -338,7 +336,7 @@ class CommonTest(unittest.TestCase):
         # Verify that __getitem__ overrides are not recognized by __iter__
         class T(self.type2test):
             def __getitem__(self, key):
-                return str(key) + '!!!'
+                return f'{str(key)}!!!'
         self.assertEqual(next(iter(T((1,2)))), 1)
 
     def test_repeat(self):

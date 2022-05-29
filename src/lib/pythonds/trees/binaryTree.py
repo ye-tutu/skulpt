@@ -14,7 +14,7 @@ class BinaryTree:
         self.rightChild = None
 
     def insertLeft(self,newNode):
-        if self.leftChild == None:
+        if self.leftChild is None:
             self.leftChild = BinaryTree(newNode)
         else:
             t = BinaryTree(newNode)
@@ -22,7 +22,7 @@ class BinaryTree:
             self.leftChild = t
     
     def insertRight(self,newNode):
-        if self.rightChild == None:
+        if self.rightChild is None:
             self.rightChild = BinaryTree(newNode)
         else:
             t = BinaryTree(newNode)
@@ -77,16 +77,9 @@ class BinaryTree:
 
     def postordereval(self):
         opers = {'+':operator.add, '-':operator.sub, '*':operator.mul, '/':operator.truediv}
-        res1 = None
-        res2 = None
-        if self.leftChild:
-            res1 = self.leftChild.postordereval()  #// \label{peleft}
-        if self.rightChild:
-            res2 = self.rightChild.postordereval() #// \label{peright}
-        if res1 and res2:
-            return opers[self.key](res1,res2) #// \label{peeval}
-        else:
-            return self.key
+        res1 = self.leftChild.postordereval() if self.leftChild else None
+        res2 = self.rightChild.postordereval() if self.rightChild else None
+        return opers[self.key](res1,res2) if res1 and res2 else self.key
 
 def inorder(tree):
     if tree != None:
@@ -106,8 +99,8 @@ def printexp(tree):
 def printexp(tree):
     sVal = ""
     if tree:
-        sVal = '(' + printexp(tree.getLeftChild())
-        sVal = sVal + str(tree.getRootVal())
+        sVal = f'({printexp(tree.getLeftChild())}'
+        sVal += str(tree.getRootVal())
         sVal = sVal + printexp(tree.getRightChild()) + ')'
     return sVal
 
@@ -124,7 +117,7 @@ def postordereval(tree):
             return tree.getRootVal()
 
 def height(tree):
-    if tree == None:
+    if tree is None:
         return -1
     else:
         return 1 + max(height(tree.leftChild),height(tree.rightChild))

@@ -26,10 +26,7 @@ class MyLong(long):
 
 class MyList(list):
     def __contains__(self, item):
-        if item == 2:
-            return True
-        else:
-            return False
+        return item == 2
     def __add__(self, item):
         return self
     def __mul__(self, num):

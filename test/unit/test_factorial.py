@@ -83,8 +83,7 @@ def factorialPS(n):
         return product(factors, 0, len(factors) - 1)
 
     def odd_factorial(n, primes):
-        if n < 2: return 1
-        return (odd_factorial(n // 2, primes)**2) * swing(n, primes)
+        return 1 if n < 2 else (odd_factorial(n // 2, primes)**2) * swing(n, primes)
 
     def eval(n):
         if n < 0:
@@ -106,7 +105,7 @@ def factorialPS(n):
 class FactorialTests(unittest.TestCase):
 
     def test_intFactorial(self):
-        for i in range(0, 18):
+        for i in range(18):
             self.assertEqual(factorial(i), factorialPS(i))
 
     def test_longFactorial(self):

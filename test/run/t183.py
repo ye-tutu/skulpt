@@ -1,6 +1,5 @@
 def yrange(n):
-    for i in range(n):
-        yield i
+    yield from range(n)
 
 def creator():
     r = yrange(5)

@@ -117,7 +117,7 @@ class Test:
     def test(self):
         return method_and_var
     def actual_global(self):
-        return str("global")
+        return "global"
     def str(self):
         return str(self)
 
@@ -131,10 +131,7 @@ print "\ntestRecursion"
 
 def f(x):
     def fact(n):
-        if n == 0:
-            return 1
-        else:
-            return n * fact(n-1)
+        return 1 if n == 0 else n * fact(n-1)
     if x>=0:
         return fact(x)
     else:

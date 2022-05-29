@@ -18,17 +18,12 @@ def gcd(a, b):
 
 def isint(x):
     """Test whether an object is an instance of int or long."""
-    return isinstance(x, int) or isinstance(x, long)
+    return isinstance(x, (int, long))
 
 
 def isnum(x):
     """Test whether an object is an instance of a built-in numeric type."""
-    # for T in int, long, float, complex:
-    # TODO: 'complex' removed until skulpt supports complex numbers
-    for T in int, long, float:
-        if isinstance(x, T):
-            return 1
-    return 0
+    return next((1 for T in (int, long, float) if isinstance(x, T)), 0)
 
 
 def isRat(x):

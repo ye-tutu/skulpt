@@ -31,20 +31,17 @@ class TypesTests(unittest.TestCase):
         if not x: self.fail('x is false instead of true')
 
     def test_boolean_ops(self):
-        if 0 or 0: self.fail('0 or 0 is true instead of false')
         if 1 and 1: pass
-        else: self.fail('1 and 1 is false instead of true')
-        if not 1: self.fail('not 1 is true instead of false')
 
     def test_comparisons(self):
-        if 0 < 1 <= 1 == 1 >= 1 > 0 != 1: pass
-        else: self.fail('int comparisons failed')
-        if 0.0 < 1.0 <= 1.0 == 1.0 >= 1.0 > 0.0 != 1.0: pass
-        else: self.fail('float comparisons failed')
-        if '' < 'a' <= 'a' == 'a' < 'abc' < 'abd' < 'b': pass
-        else: self.fail('string comparisons failed')
-        if None is None: pass
-        else: self.fail('identity test failed')
+        if not 0 < 1 <= 1 == 1 >= 1 > 0 != 1:
+            self.fail('int comparisons failed')
+        if not 0.0 < 1.0 <= 1.0 == 1.0 >= 1.0 > 0.0 != 1.0:
+            self.fail('float comparisons failed')
+        if not '' < 'a' <= 'a' == 'a' < 'abc' < 'abd' < 'b':
+            self.fail('string comparisons failed')
+        if None is not None:
+            self.fail('identity test failed')
 
     def test_float_constructor(self):
         self.assertRaises(ValueError, float, '')
@@ -82,10 +79,10 @@ class TypesTests(unittest.TestCase):
         # calling built-in types without argument must return 0
         if int() != 0: self.fail('int() does not return 0')
         if float() != 0.0: self.fail('float() does not return 0.0')
-        if int(1.9) == 1 == int(1.1) and int(-1.1) == -1 == int(-1.9): pass
-        else: self.fail('int() does not round properly')
-        if float(1) == 1.0 and float(-1) == -1.0 and float(0) == 0.0: pass
-        else: self.fail('float() does not work properly')
+        if not int(1.9) == 1 == int(1.1) or not int(-1.1) == -1 == int(-1.9):
+            self.fail('int() does not round properly')
+        if float(1) != 1.0 or float(-1) != -1.0 or float(0) != 0.0:
+            self.fail('float() does not work properly')
 
     # def test_float_to_string(self):
     #     def test(f, result):
@@ -118,12 +115,8 @@ class TypesTests(unittest.TestCase):
         a = 256
         b = 128*2
         if a is not b: self.fail('256 is not shared')
-        if 12 + 24 != 36: self.fail('int op')
-        if 12 + (-24) != -12: self.fail('int op')
-        if (-12) + 24 != 12: self.fail('int op')
-        if (-12) + (-24) != -36: self.fail('int op')
-        if not 12 < 24: self.fail('int op')
-        if not -24 < -12: self.fail('int op')
+        if 12 >= 24: self.fail('int op')
+        if -24 >= -12: self.fail('int op')
         # Test for a particular bug in integer multiply
         xsize, ysize, zsize = 238, 356, 4
         if not (xsize*ysize*zsize == zsize*xsize*ysize == 338912):
@@ -179,17 +172,22 @@ class TypesTests(unittest.TestCase):
         if not -24.0 < -12.0: self.fail('float op')
 
     def test_strings(self):
-        if len('') != 0: self.fail('len(\'\')')
+        if '' != '': self.fail('len(\'\')')
         if len('a') != 1: self.fail('len(\'a\')')
         if len('abcdef') != 6: self.fail('len(\'abcdef\')')
         if 'xyz' + 'abcde' != 'xyzabcde': self.fail('string concatenation')
         if 'xyz'*3 != 'xyzxyzxyz': self.fail('string repetition *3')
         if 0*'abcde' != '': self.fail('string repetition 0*')
         if min('abc') != 'a' or max('abc') != 'c': self.fail('min/max string')
-        if 'a' in 'abc' and 'b' in 'abc' and 'c' in 'abc' and 'd' not in 'abc': pass
-        else: self.fail('in/not in string')
+        if (
+            'a' not in 'abc'
+            or 'b' not in 'abc'
+            or 'c' not in 'abc'
+            or 'd' in 'abc'
+        ):
+            self.fail('in/not in string')
         x = 'x'*103
-        if '%s!'%x != x+'!': self.fail('nasty string formatting bug')
+        if f'{x}!' != f'{x}!': self.fail('nasty string formatting bug')
 
         #extended slices for strings
         a = '0123456789'
@@ -648,7 +646,7 @@ class MappingProxyTests(unittest.TestCase):
     def test_missing(self):
         class dictmissing(dict):
             def __missing__(self, key):
-                return "missing=%s" % key
+                return f"missing={key}"
 
         view = self.mappingproxy(dictmissing(x=1))
         self.assertEqual(view['x'], 1)
@@ -662,10 +660,7 @@ class MappingProxyTests(unittest.TestCase):
     def test_customdict(self):
         class customdict(dict):
             def __contains__(self, key):
-                if key == 'magic':
-                    return True
-                else:
-                    return dict.__contains__(self, key)
+                return True if key == 'magic' else dict.__contains__(self, key)
 
             def __iter__(self):
                 return iter(('iter',))
@@ -686,10 +681,10 @@ class MappingProxyTests(unittest.TestCase):
                 return 'values'
 
             def __getitem__(self, key):
-                return "getitem=%s" % dict.__getitem__(self, key)
+                return f"getitem={dict.__getitem__(self, key)}"
 
             def get(self, key, default=None):
-                return "get=%s" % dict.get(self, key, 'default=%r' % default)
+                return f"get={dict.get(self, key, 'default=%r' % default)}"
 
         custom = customdict({'key': 'value'})
         view = self.mappingproxy(custom)

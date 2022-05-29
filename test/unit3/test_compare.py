@@ -9,7 +9,7 @@ class Cmp:
         self.arg = arg
 
     def __repr__(self):
-        return '<Cmp %s>' % self.arg
+        return f'<Cmp {self.arg}>'
 
     def __eq__(self, other):
         return self.arg == other
@@ -37,7 +37,7 @@ class ComparisonTest(unittest.TestCase):
     def test_id_comparisons(self):
         # Ensure default comparison compares id() of args
         L = []
-        for i in range(10):
+        for _ in range(10):
             L.insert(len(L)//2, Empty())
         for a in L:
             for b in L:
@@ -118,42 +118,39 @@ class ComparisonTest(unittest.TestCase):
         def helper(x,y,expect):
             l = [0]*6
             if expect < 0:  # x < y
-                l[0] = (x < y) == True
-                l[1] = (x <= y) == True
-                l[2] = (x > y) == False
-                l[3] = (x >= y) == False
-                l[4] = (x == y) == False
-                l[5] = (x != y) == True
+                l[0] = x < y
+                l[1] = x <= y
+                l[2] = x <= y
+                l[3] = x < y
+                l[4] = x != y
+                l[5] = x != y
                 if isinstance(x,(int,float,str)) or isinstance(y,(int,float,str)):
-                    l.append((x is y)==False)
-                    l.append((x is not y)==True)
+                    l.append(x is not y)
+                    l.append(x is not y)
             elif expect == 0: # x == y
-                l[0] = (x < y) == False
-                l[1] = (x <= y) == True
-                l[2] = (x > y) == False
-                l[3] = (x >= y) == True
-                l[4] = (x == y) == True
-                l[5] = (x != y) == False
+                l[0] = x >= y
+                l[1] = x <= y
+                l[2] = x <= y
+                l[3] = x >= y
+                l[4] = x == y
+                l[5] = x == y
                 if isinstance(x,(int,float,str)) or isinstance(y,(int,float,str)):
-                    l.append((x is y)==True)
-                    l.append((x is not y)==False)
+                    l.append(x is y)
+                    l.append(x is y)
             elif expect > 0:  # x > y
-                l[0] = (x < y) == False
-                l[1] = (x <= y) == False
-                l[2] = (x > y) == True
-                l[3] = (x >= y) == True
-                l[4] = (x == y) == False
-                l[5] = (x != y) == True
+                l[0] = x >= y
+                l[1] = x > y
+                l[2] = x > y
+                l[3] = x >= y
+                l[4] = x != y
+                l[5] = x != y
                 if isinstance(x,(int,float,str)) or isinstance(y,(int,float,str)):
-                    l.append((x is y)==False)
-                    l.append((x is not y)==True)
+                    l.append(x is not y)
+                    l.append(x is not y)
             if not isinstance(x,(int,float,str)) and not isinstance(y,(int,float,str)):
-                l.append((x is y)==False)
-                l.append((x is not y)==True)
-            if all(l):
-                return True
-            else:
-                return False
+                l.append(x is not y)
+                l.append(x is not y)
+            return all(l)
         #integers
         self.assertTrue(helper(1,2,-1))
         self.assertTrue(helper(1,1,0))

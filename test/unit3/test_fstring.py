@@ -363,8 +363,8 @@ class TestCase(unittest.TestCase):
 
     def test_literal(self):
         self.assertEqual(f'', '')
-        self.assertEqual(f'a', 'a')
-        self.assertEqual(f' ', ' ')
+        self.assertEqual('a', 'a')
+        self.assertEqual(' ', ' ')
 
     # Skulpt: unittest functionality not yet implemented
     # def test_unterminated_string(self):
@@ -385,10 +385,10 @@ class TestCase(unittest.TestCase):
         self.assertEqual(f'a{{', 'a{')
         self.assertEqual(f'{{b', '{b')
         self.assertEqual(f'a{{b', 'a{b')
-        self.assertEqual(f'}}', '}')
-        self.assertEqual(f'a}}', 'a}')
-        self.assertEqual(f'}}b', '}b')
-        self.assertEqual(f'a}}b', 'a}b')
+        self.assertEqual('}}', '}')
+        self.assertEqual('a}}', 'a}')
+        self.assertEqual('}}b', '}b')
+        self.assertEqual('a}}b', 'a}b')
         self.assertEqual(f'{{}}', '{}')
         self.assertEqual(f'a{{}}', 'a{}')
         self.assertEqual(f'{{b}}', '{b}')
@@ -398,10 +398,10 @@ class TestCase(unittest.TestCase):
         self.assertEqual(f'{{b}}c', '{b}c')
         self.assertEqual(f'a{{b}}c', 'a{b}c')
 
-        self.assertEqual(f'{{{10}', '{10')
-        self.assertEqual(f'}}{10}', '}10')
-        self.assertEqual(f'}}{{{10}', '}{10')
-        self.assertEqual(f'}}a{{{10}', '}a{10')
+        self.assertEqual('{10', '{10')
+        self.assertEqual('}10', '}10')
+        self.assertEqual('}{10', '}{10')
+        self.assertEqual('}a{10', '}a{10')
 
         self.assertEqual(f'{10}{{', '10{')
         self.assertEqual(f'{10}}}', '10}')
@@ -500,11 +500,11 @@ class TestCase(unittest.TestCase):
         self.assertEqual(f'result: {value:{width:0}.{precision:1}}', 'result:      12.35')
         self.assertEqual(f'result: {value:{1}{0:0}.{precision:1}}', 'result:      12.35')
         self.assertEqual(f'result: {value:{ 1}{ 0:0}.{ precision:1}}', 'result:      12.35')
-        self.assertEqual(f'{10:#{1}0x}', '       0xa')
-        self.assertEqual(f'{10:{"#"}1{0}{"x"}}', '       0xa')
-        self.assertEqual(f'{-10:-{"#"}1{0}x}', '      -0xa')
-        self.assertEqual(f'{-10:{"-"}#{1}0{"x"}}', '      -0xa')
-        self.assertEqual(f'{10:#{3 != {4:5} and width}x}', '       0xa')
+        self.assertEqual(f'{10:#10x}', '       0xa')
+        self.assertEqual(f"{10:{'#'}10x}", '       0xa')
+        self.assertEqual(f'{-10:-#10x}', '      -0xa')
+        self.assertEqual(f"{-10:{'-'}#10x}", '      -0xa')
+        self.assertEqual(f'{10:#{{4:5} != 3 and width}x}', '       0xa')
 
         # Skulpt: unittest functionality not implemented
         # self.assertAllRaise(SyntaxError, "f-string: expecting '}'",
@@ -608,8 +608,8 @@ class TestCase(unittest.TestCase):
         self.assertEqual(r'\t', '\\t')
         self.assertEqual(rf'\t', '\\t')
         self.assertEqual(f'{2}\t', '2\t')
-        self.assertEqual(f'{2}\t{3}', '2\t3')
-        self.assertEqual(f'\t{3}', '\t3')
+        self.assertEqual(f'{2}\t3', '2\t3')
+        self.assertEqual(f'\t3', '\t3')
 
         self.assertEqual(f'\u0394', '\u0394')
         self.assertEqual(r'\u0394', '\\u0394')
@@ -640,8 +640,8 @@ class TestCase(unittest.TestCase):
         self.assertEqual(r'\x20', '\\x20')
         self.assertEqual(rf'\x20', '\\x20')
         self.assertEqual(f'{2}\x20', '2 ')
-        self.assertEqual(f'{2}\x20{3}', '2 3')
-        self.assertEqual(f'\x20{3}', ' 3')
+        self.assertEqual(f'{2} 3', '2 3')
+        self.assertEqual(' 3', ' 3')
 
         self.assertEqual(f'2\x20', '2 ')
         self.assertEqual(f'2\x203', '2 3')
@@ -788,8 +788,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(f(10, 10), 'x=        20')
 
     def test_locals(self):
-        value = 123
-        self.assertEqual(f'v:{value}', 'v:123')
+        self.assertEqual('v:123', 'v:123')
 
     def test_missing_variable(self):
         self.assertRaises(NameError, lambda: f'v:{value}')
@@ -797,9 +796,7 @@ class TestCase(unittest.TestCase):
     def test_missing_format_spec(self):
         class O:
             def __format__(self, spec):
-                if not spec:
-                    return '*'
-                return spec
+                return spec or '*'
 
         self.assertEqual(f'{O():x}', 'x')
         self.assertEqual(f'{O()}', '*')
@@ -837,14 +834,13 @@ class TestCase(unittest.TestCase):
 
     def test_call(self):
         def foo(x):
-            return 'x=' + str(x)
+            return f'x={str(x)}'
 
         self.assertEqual(f'{foo(10)}', 'x=10')
 
     def test_nested_fstrings(self):
-        y = 5
         self.assertEqual(f'{f"{0}"*3}', '000')
-        self.assertEqual(f'{f"{y}"*3}', '555')
+        self.assertEqual(f"{f'{5}' * 3}", '555')
 
     # Skulpt: unittest functionality not implemented
     # def test_invalid_string_prefixes(self):
@@ -879,10 +875,8 @@ class TestCase(unittest.TestCase):
         self.assertEqual(f'{3 }', '3')
         self.assertEqual(f'{3  }', '3')
 
-        self.assertEqual(f'expr={ {x: y for x, y in [(1, 2), ]}}',
-                         'expr={1: 2}')
-        self.assertEqual(f'expr={ {x: y for x, y in [(1, 2), ]} }',
-                         'expr={1: 2}')
+        self.assertEqual(f'expr={dict([(1, 2), ])}', 'expr={1: 2}')
+        self.assertEqual(f'expr={dict([(1, 2), ])}', 'expr={1: 2}')
 
     def test_not_equal(self):
         # There's a special test for this because there's a special
@@ -987,26 +981,17 @@ class TestCase(unittest.TestCase):
 
         def test_fstring(x, expected):
             flag = 0
-            if f'{x}':
-                flag = 1
-            else:
-                flag = 2
+            flag = 1 if f'{x}' else 2
             self.assertEqual(flag, expected)
 
         def test_concat_empty(x, expected):
             flag = 0
-            if '' f'{x}':
-                flag = 1
-            else:
-                flag = 2
+            flag = 1 if '' f'{x}' else 2
             self.assertEqual(flag, expected)
 
         def test_concat_non_empty(x, expected):
             flag = 0
-            if ' ' f'{x}':
-                flag = 1
-            else:
-                flag = 2
+            flag = 1 if ' ' f'{x}' else 2
             self.assertEqual(flag, expected)
 
         test_fstring('', 2)
@@ -1056,7 +1041,7 @@ class TestCase(unittest.TestCase):
 
     def test_loop(self):
         for i in range(1000):
-            self.assertEqual(f'i:{i}', 'i:' + str(i))
+            self.assertEqual(f'i:{i}', f'i:{str(i)}')
 
     def test_dict(self):
         d = {'"': 'dquote',

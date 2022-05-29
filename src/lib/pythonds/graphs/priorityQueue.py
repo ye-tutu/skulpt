@@ -34,14 +34,10 @@ class PriorityQueue:
     def minChild(self,i):
         if i*2 > self.currentSize:
             return -1
+        if i*2 + 1 > self.currentSize:
+            return i*2
         else:
-            if i*2 + 1 > self.currentSize:
-                return i*2
-            else:
-                if self.heapArray[i*2][0] < self.heapArray[i*2+1][0]:
-                    return i*2
-                else:
-                    return i*2+1
+            return i*2 if self.heapArray[i*2][0] < self.heapArray[i*2+1][0] else i*2+1
 
     def percUp(self,i):
         while i // 2 > 0:
@@ -65,10 +61,7 @@ class PriorityQueue:
         return retval
         
     def isEmpty(self):
-        if self.currentSize == 0:
-            return True
-        else:
-            return False
+        return self.currentSize == 0
 
     def decreaseKey(self,val,amt):
         # this is a little wierd, but we need to find the heap thing to decrease by
@@ -81,16 +74,13 @@ class PriorityQueue:
                 done = True
                 myKey = i
             else:
-                i = i + 1
+                i += 1
         if myKey > 0:
             self.heapArray[myKey] = (amt,self.heapArray[myKey][1])
             self.percUp(myKey)
             
     def __contains__(self,vtx):
-        for pair in self.heapArray:
-            if pair[1] == vtx:
-                return True
-        return False
+        return any(pair[1] == vtx for pair in self.heapArray)
         
 class TestBinHeap(unittest.TestCase):
     def setUp(self):

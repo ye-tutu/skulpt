@@ -6,7 +6,7 @@ class Comparable:
         return self.value < other.value
  
     def __repr__(self):
-        return "Value :" + str(self.value)
+        return f"Value :{str(self.value)}"
  
  
 lst = [5,9,2,7]

@@ -196,7 +196,7 @@ class TestOrderedDict(unittest.TestCase):
         pairs = [(i, i) for i in range(30)]
 
         obj = OrderedDict(pairs)
-        for i in range(8):
+        for _ in range(8):
             obj.popitem(True)
         obj.popitem(True)
         obj.popitem(last=True)

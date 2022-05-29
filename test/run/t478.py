@@ -38,8 +38,8 @@ print filter(None, [0,1,"","hello",False,True])
 b = range(8)
 c = range(10)
 def mapy(x, y):
-    if (x == None): x = 0
-    if (y == None): y = 0
+    if x is None: x = 0
+    if y is None: y = 0
     return x + y
 
 print map(mapy, b, c)

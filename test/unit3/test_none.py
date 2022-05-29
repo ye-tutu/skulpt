@@ -8,8 +8,6 @@ class NoneTests(unittest.TestCase):
         self.assertEqual(str(type(None)), "<class 'NoneType'>")
         self.assertTrue(isinstance(None, type(None)))
         flag = False
-        if None:
-            flag = True
         self.assertFalse(flag)
 
     def test_compare(self):

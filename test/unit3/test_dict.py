@@ -43,15 +43,11 @@ class DictTest(unittest.TestCase):
         a = {0: 0, 1: 1, 2: 1}
         b = {1: 1, 2: 2, 3: 3}
 
-        c = a.copy()
-        c |= b
-
+        c = a | b
         self.assertEqual(a | b, {0: 0, 1: 1, 2: 2, 3: 3})
         self.assertEqual(c, {0: 0, 1: 1, 2: 2, 3: 3})
 
-        c = b.copy()
-        c |= a
-
+        c = b | a
         self.assertEqual(b | a, {1: 1, 2: 1, 3: 3, 0: 0})
         self.assertEqual(c, {1: 1, 2: 1, 3: 3, 0: 0})
 
@@ -71,7 +67,7 @@ class DictTest(unittest.TestCase):
         self.assertEqual(a.__ior__(""), {0: 0, 1: 1, 2: 1})
 
     def test_bool(self):
-        self.assertIs(not {}, True)
+        self.assertIs(not False, True)
         self.assertTrue({1: 2})
         self.assertIs(bool({}), False)
         self.assertIs(bool({1: 2}), True)
@@ -323,10 +319,7 @@ class DictTest(unittest.TestCase):
             dict_size = random.randrange(
                 dict_size // 2, dict_size + dict_size // 2)
             # with self.subTest(dict_size=dict_size):
-            d = {}
-            for i in range(dict_size):
-                d[i] = i
-
+            d = {i: i for i in range(dict_size)}
             d2 = d.copy()
             self.assertIsNot(d2, d)
             self.assertEqual(d, d2)
@@ -452,7 +445,7 @@ class DictTest(unittest.TestCase):
                         b[repr(i)] = i
                 if copymode > 0:
                     b = a.copy()
-                for i in range(size):
+                for _ in range(size):
                     ka, va = ta = a.popitem()
                     self.assertEqual(va, int(ka))
                     kb, vb = tb = b.popitem()
@@ -499,16 +492,14 @@ class DictTest(unittest.TestCase):
 
     def test_mutating_iteration(self):
         # changing dict size during iteration
-        d = {}
-        d[1] = 1
+        d = {1: 1}
         with self.assertRaises(RuntimeError):
             for i in d:
                 d[i+1] = 1
 
     def test_mutating_iteration_delete(self):
         # change dict content during iteration
-        d = {}
-        d[0] = 0
+        d = {0: 0}
         with self.assertRaises(RuntimeError):
             for i in d:
                 del d[0]
@@ -516,8 +507,7 @@ class DictTest(unittest.TestCase):
 
     def test_mutating_iteration_delete_over_values(self):
         # change dict content during iteration
-        d = {}
-        d[0] = 0
+        d = {0: 0}
         with self.assertRaises(RuntimeError):
             for i in d.values():
                 del d[0]
@@ -525,8 +515,7 @@ class DictTest(unittest.TestCase):
 
     def test_mutating_iteration_delete_over_items(self):
         # change dict content during iteration
-        d = {}
-        d[0] = 0
+        d = {0: 0}
         with self.assertRaises(RuntimeError):
             for i in d.items():
                 del d[0]
@@ -811,9 +800,7 @@ class DictTest(unittest.TestCase):
         # exactly the right order, and I can't think of a randomized approach
         # that would be *likely* to hit a failing case in reasonable time.
 
-        d = {}
-        for i in range(5):
-            d[i] = i
+        d = {i: i for i in range(5)}
         for i in range(5):
             del d[i]
         for i in range(5, 9):  # i==8 was the problem
@@ -967,11 +954,12 @@ class DictTest(unittest.TestCase):
     #     self._tracked(MyDict())
 
     def make_shared_key_dict(self, n):
+
         class C:
             pass
 
         dicts = []
-        for i in range(n):
+        for _ in range(n):
             a = C()
             a.x, a.y, a.z = 1, 2, 3
             dicts.append(a.__dict__)

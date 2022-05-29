@@ -33,11 +33,12 @@ class LocaleTime_Tests(unittest.TestCase):
         """
         strftime_output = time.strftime(directive, self.time_tuple).lower()
         comparison = testing[self.time_tuple[tuple_position]]
-        self.assertIn(strftime_output, testing,
-                      "%s: not found in tuple" % error_msg)
-        self.assertEqual(comparison, strftime_output,
-                         "%s: position within tuple incorrect; %s != %s" %
-                         (error_msg, comparison, strftime_output))
+        self.assertIn(strftime_output, testing, f"{error_msg}: not found in tuple")
+        self.assertEqual(
+            comparison,
+            strftime_output,
+            f"{error_msg}: position within tuple incorrect; {comparison} != {strftime_output}",
+        )
 
     def test_weekday(self):
         # Make sure that full and abbreviated weekday names are correct in
@@ -60,19 +61,17 @@ class LocaleTime_Tests(unittest.TestCase):
         strftime_output = time.strftime("%p", self.time_tuple).lower()
         self.assertIn(strftime_output, self.LT_ins.am_pm,
                       "AM/PM representation not in tuple")
-        if self.time_tuple[3] < 12: position = 0
-        else: position = 1
+        position = 0 if self.time_tuple[3] < 12 else 1
         self.assertEqual(self.LT_ins.am_pm[position], strftime_output,
                          "AM/PM representation in the wrong position within the tuple")
 
     def test_timezone(self):
-        # Make sure timezone is correct
-        timezone = time.strftime("%Z", self.time_tuple).lower()
-        if timezone:
-            self.assertTrue(timezone in self.LT_ins.timezone[0] or
-                            timezone in self.LT_ins.timezone[1],
-                            "timezone %s not found in %s" %
-                            (timezone, self.LT_ins.timezone))
+        if timezone := time.strftime("%Z", self.time_tuple).lower():
+            self.assertTrue(
+                timezone in self.LT_ins.timezone[0]
+                or timezone in self.LT_ins.timezone[1],
+                f"timezone {timezone} not found in {self.LT_ins.timezone}",
+            )
 
     def test_date_time(self):
         # Check that LC_date_time, LC_date, and LC_time are correct
@@ -135,7 +134,7 @@ class StrptimeTests(unittest.TestCase):
         # 3. ISO year (%G) and weekday are specified, but ISO week (%V) is not
         for w in ('A', 'a', 'w', 'u'):
             with self.assertRaises(ValueError):
-                _strptime._strptime("1999 51","%G %{}".format(w))
+                _strptime._strptime("1999 51", f"%G %{w}")
         # 4. ISO year is specified alone (e.g. time.strptime('2015', '%G'))
         with self.assertRaises(ValueError):
             _strptime._strptime("2015", "%G")
@@ -160,8 +159,8 @@ class StrptimeTests(unittest.TestCase):
 
     def helper(self, directive, position):
         """Helper fxn in testing."""
-        strf_output = time.strftime("%" + directive, self.time_tuple)
-        strp_output = _strptime._strptime_time(strf_output, "%" + directive)
+        strf_output = time.strftime(f"%{directive}", self.time_tuple)
+        strp_output = _strptime._strptime_time(strf_output, f"%{directive}")
         self.assertTrue(strp_output[position] == self.time_tuple[position],
                         "testing of '%s' directive failed; '%s' -> %s != %s" %
                          (directive, strf_output, strp_output[position],
@@ -318,7 +317,7 @@ class StrptimeTests(unittest.TestCase):
 
     def test_date(self):
         # Test %x directive
-        for position in range(0,3):
+        for position in range(3):
             self.helper('x', position)
 
     def test_time(self):
@@ -391,9 +390,10 @@ class CalculationTests(unittest.TestCase):
         format_string = "%Y %m %d %H %M %S %w %Z"
         result = _strptime._strptime_time(time.strftime(format_string, self.time_tuple),
                                     format_string)
-        self.assertTrue(result.tm_yday == self.time_tuple.tm_yday,
-                        "Calculation of tm_yday failed; %s != %s" %
-                         (result.tm_yday, self.time_tuple.tm_yday))
+        self.assertTrue(
+            result.tm_yday == self.time_tuple.tm_yday,
+            f"Calculation of tm_yday failed; {result.tm_yday} != {self.time_tuple.tm_yday}",
+        )
 
     # @skip_if_buggy_ucrt_strfptime
     def test_gregorian_calculation(self):
@@ -441,7 +441,7 @@ class CalculationTests(unittest.TestCase):
                 #  and ymd_tuple in self._ymd_excluded):
                     return
                 for weekday_format in ('%w', '%u', '%a', '%A'):
-                    format_string = year_week_format + ' ' + weekday_format
+                    format_string = f'{year_week_format} {weekday_format}'
                     # with self.subTest(test_reason,
                     #                   date=ymd_tuple,
                     #                   format=format_string):

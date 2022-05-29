@@ -6,7 +6,7 @@ from operator import neg
 
 def add_one(num):
     """function for testing"""
-    if num != 2 and num != 6.0 and num != -151.5:
+    if num not in [2, 6.0, -151.5]:
         return num + 1
 
 str1 = 'ABCD'
@@ -16,8 +16,8 @@ str4 = 'abcde'
 lst1 = [1, 2, 3, 4, 5]
 lst2 = [2, 4, 6, 8, 10]
 lst3 = [-150, -151, -151.49, -151.50000, -151.500001, -152.0]
-gen1 = (letter for letter in str4)
-gen2 = (num for num in lst1)
+gen1 = iter(str4)
+gen2 = iter(lst1)
 
 class Squares:
     """class for testing, creates list of squares from 0 to i - 1"""
@@ -32,7 +32,7 @@ class Squares:
         if not 0 <= i < self.max: raise IndexError
         n = len(self.sofar)
         while n <= i:
-            self.sofar.append(n*n)
+            self.sofar.append(n**2)
             n += 1
         return self.sofar[i]
 
@@ -230,10 +230,7 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(ord('h'), 104)
         self.assertEqual(ord('e'), 101)
         self.assertEqual(ord('!'), 33)
-        correct = True
-        for x in range(256):
-            if x != ord(chr(x)):
-                correct = False
+        correct = all(x == ord(chr(x)) for x in range(256))
         self.assertTrue(correct)
 
     # def test_construct_singletons(self):
@@ -876,7 +873,6 @@ class BuiltinTest(unittest.TestCase):
         class BadSeq:
             def __iter__(self):
                 raise ValueError
-                yield None
         # self.assertRaises(ValueError, list, map(lambda x: x, BadSeq()))
         def badfunc(x):
             raise RuntimeError
@@ -1606,7 +1602,7 @@ class TestSorted(unittest.TestCase):
         def makeset(lst):
             result = {}
             for a in lst:
-                if not (a in result.keys()):
+                if a not in result:
                     result[a] = []
 
                 result[a].append(True)
@@ -1618,26 +1614,20 @@ class TestSorted(unittest.TestCase):
             assert len(lst1) == len(lst2)
             assert makeset(lst1) == makeset(lst2)
             position = {}
-            i = 0
             err = False
-            for a in lst1:
-                if not (a in position.keys()):
+            for i, a in enumerate(lst1):
+                if a not in position:
                     position[a] = []
                 position[a].append(i)
-                i += 1
             for i in range(len(lst2)-1):
                 a, b = lst2[i], lst2[i+1]
                 if not a <= b:
                     print("resulting list is not sorted")
                     err = True
-                if a == b:
-                    if not position[a][0] < position[b][-1]:
-                        print("not stable")
-                        err = True
-            if not err:
-                return 1
-            else:
-                return 0
+                if a == b and not position[a][0] < position[b][-1]:
+                    print("not stable")
+                    err = True
+            return 0 if err else 1
         sum0 = 0
         for v in range(20):
             up = 1 + int(v * random.random() * 2.7)

@@ -1,4 +1,3 @@
 def yrange(n):
-    for i in range(n):
-        yield i
+    yield from range(n)
 print list(yrange(5))

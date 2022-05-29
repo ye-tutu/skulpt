@@ -39,7 +39,6 @@ class ExceptionTest(unittest.TestCase):
 		def r1():
 			try:
 				return 42
-				self.assertTrue(False, "Execution continued after return")
 			finally:
 				finally_ran[0] = True
 		self.assertEqual(r1(), 42)
@@ -48,7 +47,6 @@ class ExceptionTest(unittest.TestCase):
 		def r2():
 			try:
 				return 42
-				self.assertTrue(False, "Execution continued after return")
 			finally:
 				return 43
 		self.assertEqual(r2(), 43)

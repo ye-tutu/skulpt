@@ -26,8 +26,7 @@ class ParserGenerator(object):
 
     def make_grammar(self):
         c = PgenGrammar()
-        names = list(self.dfas.keys())
-        names.sort()
+        names = sorted(self.dfas.keys())
         names.remove(self.startsymbol)
         names.insert(0, self.startsymbol)
         for name in names:
@@ -38,9 +37,11 @@ class ParserGenerator(object):
             dfa = self.dfas[name]
             states = []
             for state in dfa:
-                arcs = []
-                for label, next in state.arcs.items():
-                    arcs.append((self.make_label(c, label), dfa.index(next)))
+                arcs = [
+                    (self.make_label(c, label), dfa.index(next))
+                    for label, next in state.arcs.items()
+                ]
+
                 if state.isfinal:
                     arcs.append((0, dfa.index(state)))
                 states.append(arcs)
@@ -64,13 +65,10 @@ class ParserGenerator(object):
         if label[0].isalpha():
             # Either a symbol name or a named token
             if label in c.symbol2number:
-                # A symbol name (a non-terminal)
                 if label in c.symbol2label:
                     return c.symbol2label[label]
-                else:
-                    c.labels.append((c.symbol2number[label], None))
-                    c.symbol2label[label] = ilabel
-                    return ilabel
+                c.labels.append((c.symbol2number[label], None))
+                c.symbol2label[label] = ilabel
             else:
                 # A named token (NAME, NUMBER, STRING)
                 itoken = getattr(token, label, None)
@@ -78,35 +76,28 @@ class ParserGenerator(object):
                 assert itoken in token.tok_name, label
                 if itoken in c.tokens:
                     return c.tokens[itoken]
-                else:
-                    c.labels.append((itoken, None))
-                    c.tokens[itoken] = ilabel
-                    return ilabel
+                c.labels.append((itoken, None))
+                c.tokens[itoken] = ilabel
         else:
             # Either a keyword or an operator
             assert label[0] in ('"', "'"), label
             value = eval(label)
             if value[0].isalpha():
-                # A keyword
                 if value in c.keywords:
                     return c.keywords[value]
-                else:
-                    c.labels.append((token.NAME, value))
-                    c.keywords[value] = ilabel
-                    return ilabel
+                c.labels.append((token.NAME, value))
+                c.keywords[value] = ilabel
             else:
                 # An operator (any non-numeric token)
                 itoken = grammar.opmap[value] # Fails if unknown token
                 if itoken in c.tokens:
                     return c.tokens[itoken]
-                else:
-                    c.labels.append((itoken, None))
-                    c.tokens[itoken] = ilabel
-                    return ilabel
+                c.labels.append((itoken, None))
+                c.tokens[itoken] = ilabel
+        return ilabel
 
     def addfirstsets(self):
-        names = list(self.dfas.keys())
-        names.sort()
+        names = sorted(self.dfas.keys())
         for name in names:
             if name not in self.first:
                 self.calcfirst(name)
@@ -127,7 +118,7 @@ class ParserGenerator(object):
                 else:
                     self.calcfirst(label)
                     fset = self.first[label]
-                totalset.update(fset)
+                totalset |= fset
                 overlapcheck[label] = fset
             else:
                 totalset[label] = 1
@@ -251,17 +242,16 @@ class ParserGenerator(object):
         a, z = self.parse_alt()
         if self.value != "|":
             return a, z
-        else:
-            aa = NFAState()
-            zz = NFAState()
+        aa = NFAState()
+        zz = NFAState()
+        aa.addarc(a)
+        z.addarc(zz)
+        while self.value == "|":
+            self.gettoken()
+            a, z = self.parse_alt()
             aa.addarc(a)
             z.addarc(zz)
-            while self.value == "|":
-                self.gettoken()
-                a, z = self.parse_alt()
-                aa.addarc(a)
-                z.addarc(zz)
-            return aa, zz
+        return aa, zz
 
     def parse_alt(self):
         # ALT: ITEM+
@@ -288,10 +278,7 @@ class ParserGenerator(object):
                 return a, z
             self.gettoken()
             z.addarc(a)
-            if value == "+":
-                return a, z
-            else:
-                return a, a
+            return (a, z) if value == "+" else (a, a)
 
     def parse_atom(self):
         # ATOM: '(' RHS ')' | NAME | STRING
@@ -374,10 +361,7 @@ class DFAState(object):
         # would invoke this method recursively, with cycles...
         if len(self.arcs) != len(other.arcs):
             return False
-        for label, next in self.arcs.items():
-            if next is not other.arcs.get(label):
-                return False
-        return True
+        return all(next is other.arcs.get(label) for label, next in self.arcs.items())
 
 def generate_grammar(filename="Grammar.txt"):
     p = ParserGenerator(filename)

@@ -41,8 +41,8 @@ class Y(F):
         super(F, self).__init__(123)
 
 class Meta(type):
-    def __new__(meta, name, bases, namespace):
-        return super().__new__(meta, name, bases, namespace)
+    def __new__(cls, name, bases, namespace):
+        return super().__new__(cls, name, bases, namespace)
 
 class S(metaclass = Meta):
     x: str = 'something'

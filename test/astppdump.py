@@ -10,11 +10,14 @@ def astppdump(node):
             for a,b in ast.iter_fields(node):
                 fieldlen = len(a)*" "
                 fields.append((a, _format(b, indent+namelen+fieldlen+" ")))
-            fieldstr = (",\n"+indent+namelen).join('%s=%s' % (field[0],field[1].lstrip()) for field in fields)
-            return indent+node.__class__.__name__ + "(%s)" % fieldstr
+            fieldstr = (",\n" + indent + namelen).join(
+                f'{field[0]}={field[1].lstrip()}' for field in fields
+            )
+
+            return indent+node.__class__.__name__ + f"({fieldstr})"
         elif isinstance(node, list):
-            elems = (',\n').join(_format(x, indent+" ") for x in node)
-            return indent+"[%s]" % elems.lstrip()
+            elems = (',\n').join(_format(x, f"{indent} ") for x in node)
+            return indent + f"[{elems.lstrip()}]"
         elif isinstance(node, long): # L suffix depends on 32/64 python, and skulpt is ~30 because of number precision in js
             return indent+str(node)
         return indent+repr(node)

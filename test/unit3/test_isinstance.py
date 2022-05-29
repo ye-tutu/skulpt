@@ -131,7 +131,7 @@ class IsInstanceTest(unittest.TestCase):
         self.assertFalse(isinstance(var1, A))
 
     def test_set(self):
-        self.assertTrue(isinstance(set([1,2]), type(set([3,4]))))
+        self.assertTrue(isinstance({1, 2}, type({3, 4})))
         
                          
 if __name__ == '__main__':

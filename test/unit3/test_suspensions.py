@@ -81,8 +81,7 @@ class Test_Suspensions(unittest.TestCase):
     def test_suspension_error(self):
         x = SleepingDunderFail()
         with self.assertRaises(Exception) as e:
-            for i in x:
-                pass
+            pass
         self.assertIn("Cannot call a function that blocks or suspends", str(e.exception))
         self.assertTrue(repr(e.exception).startswith("SuspensionError"))
 

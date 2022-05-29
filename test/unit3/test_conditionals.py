@@ -3,14 +3,10 @@ import unittest
 
 class ConditionalTests(unittest.TestCase):
     def test_if(self):
-        flag1 = False
-        flag2 = False
         x = 1
-        if x == 1:
-            flag1 = True
+        flag1 = x == 1
         self.assertTrue(flag1)
-        if x == 2:
-            flag2 = True
+        flag2 = x == 2
         self.assertFalse(flag2)
 
     def test_else(self):
@@ -27,10 +23,8 @@ class ConditionalTests(unittest.TestCase):
         flag1, flag2, flag3 = False, False, False
         if 0 == 1:
             flag1 = True
-        elif 1 == 1:
-            flag2 = True
         else:
-            flag3 = True
+            flag2 = True
         self.assertFalse(flag1)
         self.assertTrue(flag2)
         self.assertFalse(flag3)

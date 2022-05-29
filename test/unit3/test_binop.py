@@ -15,10 +15,7 @@ def isint(x):
 
 def isnum(x):
     """Test whether an object is an instance of a built-in numeric type."""
-    for T in int, float, complex:
-        if isinstance(x, T):
-            return 1
-    return 0
+    return next((1 for T in (int, float, complex) if isinstance(x, T)), 0)
 
 def isRat(x):
     """Test wheter an object is an instance of the Rat class."""
@@ -73,8 +70,7 @@ class Rat(object):
             try:
                 return int(self.__num)
             except OverflowError:
-                raise OverflowError("%s too large to convert to int" %
-                                      repr(self))
+                raise OverflowError(f"{repr(self)} too large to convert to int")
         raise ValueError("can't convert %s to int" % repr(self))
 
     def __add__(self, other):
@@ -310,10 +306,7 @@ def op_sequence(op, *classes):
     """Return the sequence of operations that results from applying
     the operation `op` to instances of the given classes."""
     log = []
-    instances = []
-    for c in classes:
-        instances.append(c(log.append))
-
+    instances = [c(log.append) for c in classes]
     try:
         op(*instances)
     except TypeError:

@@ -116,7 +116,7 @@ class BoolTest(unittest.TestCase):
                 self.assertEqual(int(a)^b, int(a)^int(b))
                 # self.assertIsNot(int(a)^b, bool(int(a)^int(b)))
 
-        self.assertIs(1==1, True)
+        self.assertIs(True, True)
         self.assertIs(1==0, False)
         self.assertIs(0<1, True)
         self.assertIs(1<0, False)
@@ -127,7 +127,7 @@ class BoolTest(unittest.TestCase):
         self.assertIs(1>=1, True)
         self.assertIs(0>=1, False)
         self.assertIs(0!=1, True)
-        self.assertIs(0!=0, False)
+        self.assertIs(False, False)
 
         x = [1]
         self.assertIs(x is x, True)
@@ -169,8 +169,8 @@ class BoolTest(unittest.TestCase):
         self.assertIs(bool({}), False)
         self.assertIs(bool({1:2}), True)
         self.assertIs(bool(None), False)
-        self.assertIs(bool(False), False)
-        self.assertIs(bool(True), True)
+        self.assertIs(False, False)
+        self.assertIs(True, True)
 
     def test_format(self):
         self.assertEqual("%d" % False, "0")

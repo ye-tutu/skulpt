@@ -8,11 +8,7 @@ def check(tag, expected, raw, compare=None):
     global nerrors
 
     orig = raw[:]   # save input in case of error
-    if compare:
-        raw.sort()
-    else:
-        raw.sort()
-
+    raw.sort()
     if len(expected) != len(raw):
         print("error in", tag)
         print("length mismatch;", len(expected), len(raw))

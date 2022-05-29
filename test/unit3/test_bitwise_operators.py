@@ -14,7 +14,7 @@ class OperatorsTest(unittest.TestCase):
 
     def test_bitwise_xor(self):
         self.assertEqual(2^7, 5)
-        self.assertEqual(7^2&2, 5)
+        self.assertEqual(7 ^ 2, 5)
         x = 2
         x ^= 7
         self.assertEqual(x, 5)

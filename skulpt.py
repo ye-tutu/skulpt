@@ -9,17 +9,15 @@ import shutil
 import json
 
 def bowerFileName():
-    file = open(".bowerrc")
-    data = json.load(file)
-    fileName = data["json"]
-    file.close()
+    with open(".bowerrc") as file:
+        data = json.load(file)
+        fileName = data["json"]
     return fileName
 
 def bowerProperty(name):
-    file = open(bowerFileName())
-    data = json.load(file)
-    value = data[name]
-    file.close()
+    with open(bowerFileName()) as file:
+        data = json.load(file)
+        value = data[name]
     return value
 
 # Symbolic constants for the project structure.
@@ -28,17 +26,9 @@ TEST_DIR        = 'test'
 if sys.platform == "win32":
     nul = "nul"
     crlfprog = os.path.join(os.path.split(sys.executable)[0], "Tools/Scripts/crlf.py")
-elif sys.platform == "darwin":
-    nul = "/dev/null"
-    crlfprog = None
-elif sys.platform == "linux2":
-    nul = "/dev/null"
-    crlfprog = None
 else:
-    # You're on your own...
     nul = "/dev/null"
     crlfprog = None
-
 if os.environ.get("CI",False):
     nul = "/dev/null"
 
@@ -57,19 +47,19 @@ def regenruntests(togen="{0}/run/*.py".format(TEST_DIR)):
     """regenerate the test data by running the tests on real python"""
     for f in glob.glob(togen):
         os.system("python {0} > {1}.real 2>&1".format(f, f))
-        forcename = f + ".real.force"
+        forcename = f"{f}.real.force"
         if os.path.exists(forcename):
-            shutil.copy(forcename, "%s.real" % f)
+            shutil.copy(forcename, f"{f}.real")
         if crlfprog:
-            os.system("python %s %s.real" % (crlfprog, f))
+            os.system(f"python {crlfprog} {f}.real")
     for f in glob.glob("{0}/interactive/*.py".format(TEST_DIR)):
-        p = Popen("python -i > %s.real 2>%s" % (f, nul), shell=True, stdin=PIPE)
+        p = Popen(f"python -i > {f}.real 2>{nul}", shell=True, stdin=PIPE)
         p.communicate(open(f).read() + "\004")
-        forcename = f + ".real.force"
+        forcename = f"{f}.real.force"
         if os.path.exists(forcename):
-            shutil.copy(forcename, "%s.real" % f)
+            shutil.copy(forcename, f"{f}.real")
         if crlfprog:
-            os.system("python %s %s.real" % (crlfprog, f))
+            os.system(f"python {crlfprog} {f}.real")
 
 def symtabdump(fn):
     if not os.path.exists(fn):
@@ -102,30 +92,49 @@ def symtabdump(fn):
         ret += "%s-- Identifiers --\n" % indent
         for ident in sorted(obj.get_identifiers()):
             info = obj.lookup(ident)
-            ret += "%sname: %s\n  %sis_referenced: %s\n  %sis_imported: %s\n  %sis_parameter: %s\n  %sis_global: %s\n  %sis_declared_global: %s\n  %sis_local: %s\n  %sis_free: %s\n  %sis_assigned: %s\n  %sis_namespace: %s\n  %snamespaces: [\n%s  %s]\n" % (
-                    indent, info.get_name(),
-                    indent, info.is_referenced(),
-                    indent, info.is_imported(),
-                    indent, info.is_parameter(),
-                    indent, info.is_global(),
-                    indent, info.is_declared_global(),
-                    indent, info.is_local(),
-                    indent, info.is_free(),
-                    indent, info.is_assigned(),
-                    indent, info.is_namespace(),
-                    indent, '\n'.join([getidents(x, indent + "    ") for x in info.get_namespaces()]),
-                    indent
-                    )
+            ret += (
+                "%sname: %s\n  %sis_referenced: %s\n  %sis_imported: %s\n  %sis_parameter: %s\n  %sis_global: %s\n  %sis_declared_global: %s\n  %sis_local: %s\n  %sis_free: %s\n  %sis_assigned: %s\n  %sis_namespace: %s\n  %snamespaces: [\n%s  %s]\n"
+                % (
+                    indent,
+                    info.get_name(),
+                    indent,
+                    info.is_referenced(),
+                    indent,
+                    info.is_imported(),
+                    indent,
+                    info.is_parameter(),
+                    indent,
+                    info.is_global(),
+                    indent,
+                    info.is_declared_global(),
+                    indent,
+                    info.is_local(),
+                    indent,
+                    info.is_free(),
+                    indent,
+                    info.is_assigned(),
+                    indent,
+                    info.is_namespace(),
+                    indent,
+                    '\n'.join(
+                        [
+                            getidents(x, f"{indent}    ")
+                            for x in info.get_namespaces()
+                        ]
+                    ),
+                    indent,
+                )
+            )
+
         return ret
     return getidents(mod)
 
 def regensymtabtests(togen="{0}/run/*.py".format(TEST_DIR)):
     """regenerate the test data by running the symtab dump via real python"""
     for fn in glob.glob(togen):
-        outfn = "%s.symtab" % fn
-        f = open(outfn, "wb")
-        f.write(symtabdump(fn))
-        f.close()
+        outfn = f"{fn}.symtab"
+        with open(outfn, "wb") as f:
+            f.write(symtabdump(fn))
 
 def vmwareregr(names):
     """todo; not working yet.

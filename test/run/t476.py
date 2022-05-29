@@ -27,10 +27,10 @@ class Counter:
         return self.count
 
     def __repr__(self):
-        return "< Counter Object: ("+str(self.count)+","+str(self.stop)+") >"
+        return f"< Counter Object: ({str(self.count)},{str(self.stop)}) >"
 
     def __str__(self):
-        return "("+str(self.count)+","+str(self.stop)+")"
+        return f"({str(self.count)},{str(self.stop)})"
 
     def __call__(self, x):
         for i in range(x):
@@ -39,9 +39,7 @@ class Counter:
             self.dict[i] = i + 1
 
     def __getitem__(self, key):
-        if key in self.dict:
-            return self.dict[key]
-        return -1
+        return self.dict[key] if key in self.dict else -1
 
     def __setitem__(self, key, value):
         self.dict[key] = value

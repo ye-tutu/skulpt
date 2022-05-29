@@ -5,7 +5,7 @@ import unittest
 class string_format(unittest.TestCase):
     def test_simple_position(self):
         self.assertEqual('a, b, c', '{0}, {1}, {2}'.format('a', 'b', 'c'))
-        self.assertEqual('a, b, c', '{}, {}, {}'.format('a', 'b', 'c'))
+        self.assertEqual('a, b, c', 'a, b, c')
         self.assertEqual('c, b, a',  '{2}, {1}, {0}'.format('a', 'b', 'c'))
         self.assertEqual('c, b, a', '{2}, {1}, {0}'.format(*'abc'))
         self.assertEqual('abracadabra', '{0}{1}{0}'.format('abra', 'cad'))
@@ -69,8 +69,8 @@ class string_format(unittest.TestCase):
         self.assertEqual('Correct answers: 88.64%', 'Correct answers: {:.2%}'.format(points/total))
 
     def test_sequence(self):
-        self.assertEqual('(1, 2, 3)', '{}'.format((1, 2, 3)))
-        self.assertEqual('[1, 2, 3]', '{}'.format([1, 2, 3]))
+        self.assertEqual('(1, 2, 3)', f'{(1, 2, 3)}')
+        self.assertEqual('[1, 2, 3]', f'{[1, 2, 3]}')
 
     def test_datetime(self):
         import datetime

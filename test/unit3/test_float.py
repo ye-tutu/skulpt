@@ -11,18 +11,18 @@ NAN = float("nan")
 
 class FloatTestCases(unittest.TestCase):
     def test_conjugate(self):
-        self.assertEqual(float(3.0).conjugate(), 3.0)
+        self.assertEqual(3.0.conjugate(), 3.0)
         self.assertEqual(int(-3.0).conjugate(), -3.0)
         
     def test_underscores(self):
         for lit in VALID_UNDERSCORE_LITERALS:
-            if not any(ch in lit for ch in 'jJxXoObB'):
+            if all(ch not in lit for ch in 'jJxXoObB'):
                 # self.assertEqual(float(lit), eval(lit))
                 self.assertEqual(float(lit), float(lit.replace('_', '')))
         for lit in INVALID_UNDERSCORE_LITERALS:
             if lit in ('0_7', '09_99'):  # octals are not recognized here
                 continue
-            if not any(ch in lit for ch in 'jJxXoObB'):
+            if all(ch not in lit for ch in 'jJxXoObB'):
                 self.assertRaises(ValueError, float, lit)
         # Additional test cases; nan and inf are never valid as literals,
         # only in the float() constructor, but we don't allow underscores
@@ -107,7 +107,7 @@ class FormatTestCase(unittest.TestCase):
         #  in particular int specifiers
         for format_spec in ([chr(x) for x in range(ord('a'), ord('z')+1)] +
                             [chr(x) for x in range(ord('A'), ord('Z')+1)]):
-            if not format_spec in 'eEfFgGn%':
+            if format_spec not in 'eEfFgGn%':
                 self.assertRaises(ValueError, format, 0.0, format_spec)
                 self.assertRaises(ValueError, format, 1.0, format_spec)
                 self.assertRaises(ValueError, format, -1.0, format_spec)

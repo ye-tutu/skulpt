@@ -4,7 +4,7 @@ class Point:
         self.y = initY
 
     def __str__(self):
-        return str(self.x) + "," + str(self.y)
+        return f"{str(self.x)},{str(self.y)}"
 
 
 p = Point(1,2)

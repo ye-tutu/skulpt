@@ -42,22 +42,17 @@ class BinarySearchTree:
                 self._put(key,val,currentNode.leftChild)
             else:
                 currentNode.leftChild = TreeNode(key,val,parent=currentNode)
+        elif currentNode.hasRightChild():
+            self._put(key,val,currentNode.rightChild)
         else:
-            if currentNode.hasRightChild():
-                self._put(key,val,currentNode.rightChild)
-            else:
-                currentNode.rightChild = TreeNode(key,val,parent=currentNode)
+            currentNode.rightChild = TreeNode(key,val,parent=currentNode)
             
     def __setitem__(self,k,v):
         self.put(k,v)
 
     def get(self,key):
         if self.root:
-            res = self._get(key,self.root)
-            if res:
-                return res.payload
-            else:
-                return None
+            return res.payload if (res := self._get(key,self.root)) else None
         else:
             return None
         
@@ -73,18 +68,14 @@ class BinarySearchTree:
             
         
     def __getitem__(self,key):
-        res = self.get(key)
-        if res:
+        if res := self.get(key):
             return res
         else:
             raise KeyError('Error, key not in tree')
             
 
     def __contains__(self,key):
-        if self._get(key,self.root):
-            return True
-        else:
-            return False
+        return bool(self._get(key,self.root))
         
     def length(self):
         return self.size
@@ -97,12 +88,10 @@ class BinarySearchTree:
     
     def delete(self,key):
         if self.size > 1:
-            nodeToRemove = self._get(key,self.root)
-            if nodeToRemove:
-                self.remove(nodeToRemove)
-                self.size = self.size-1
-            else:
+            if not (nodeToRemove := self._get(key, self.root)):
                 raise KeyError('Error, key not in tree')
+            self.remove(nodeToRemove)
+            self.size = self.size-1
         elif self.size == 1 and self.root.key == key:
             self.root = None
             self.size = self.size - 1
@@ -123,31 +112,29 @@ class BinarySearchTree:
             succ.spliceOut()
             currentNode.key = succ.key
             currentNode.payload = succ.payload
-        else: # this node has one child
-            if currentNode.hasLeftChild():
-                if currentNode.isLeftChild():
-                    currentNode.leftChild.parent = currentNode.parent
-                    currentNode.parent.leftChild = currentNode.leftChild
-                elif currentNode.isRightChild():
-                    currentNode.leftChild.parent = currentNode.parent
-                    currentNode.parent.rightChild = currentNode.leftChild
-                else:
-                    currentNode.replaceNodeData(currentNode.leftChild.key,
-                                       currentNode.leftChild.payload,
-                                       currentNode.leftChild.leftChild,
-                                       currentNode.leftChild.rightChild)
+        elif currentNode.hasLeftChild():
+            if currentNode.isLeftChild():
+                currentNode.leftChild.parent = currentNode.parent
+                currentNode.parent.leftChild = currentNode.leftChild
+            elif currentNode.isRightChild():
+                currentNode.leftChild.parent = currentNode.parent
+                currentNode.parent.rightChild = currentNode.leftChild
             else:
-                if currentNode.isLeftChild():
-                    currentNode.rightChild.parent = currentNode.parent
-                    currentNode.parent.leftChild = currentNode.rightChild
-                elif currentNode.isRightChild():
-                    currentNode.rightChild.parent = currentNode.parent
-                    currentNode.parent.rightChild = currentNode.rightChild
-                else:
-                    currentNode.replaceNodeData(currentNode.rightChild.key,
-                                       currentNode.rightChild.payload,
-                                       currentNode.rightChild.leftChild,
-                                       currentNode.rightChild.rightChild)
+                currentNode.replaceNodeData(currentNode.leftChild.key,
+                                   currentNode.leftChild.payload,
+                                   currentNode.leftChild.leftChild,
+                                   currentNode.leftChild.rightChild)
+        elif currentNode.isLeftChild():
+            currentNode.rightChild.parent = currentNode.parent
+            currentNode.parent.leftChild = currentNode.rightChild
+        elif currentNode.isRightChild():
+            currentNode.rightChild.parent = currentNode.parent
+            currentNode.parent.rightChild = currentNode.rightChild
+        else:
+            currentNode.replaceNodeData(currentNode.rightChild.key,
+                               currentNode.rightChild.payload,
+                               currentNode.rightChild.leftChild,
+                               currentNode.rightChild.rightChild)
 
     def inorder(self):
         self._inorder(self.root)
@@ -224,14 +211,13 @@ class TreeNode:
         succ = None
         if self.hasRightChild():
             succ = self.rightChild.findMin()
-        else:
-            if self.parent:
-                if self.isLeftChild():
-                    succ = self.parent
-                else:
-                    self.parent.rightChild = None
-                    succ = self.parent.findSuccessor()
-                    self.parent.rightChild = self
+        elif self.parent:
+            if self.isLeftChild():
+                succ = self.parent
+            else:
+                self.parent.rightChild = None
+                succ = self.parent.findSuccessor()
+                self.parent.rightChild = self
         return succ
 
 
@@ -265,11 +251,9 @@ class TreeNode:
         """The standard inorder traversal of a binary tree."""
         if self:
             if self.hasLeftChild():
-                for elem in self.leftChild:
-                    yield elem
+                yield from self.leftChild
             yield self.key
             if self.hasRightChild():
-                for elem in self.rightChild:
-                    yield elem
+                yield from self.rightChild
 
             

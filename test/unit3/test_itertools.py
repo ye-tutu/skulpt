@@ -30,8 +30,7 @@ def errfunc(*args):
 
 def gen3():
     'Non-restartable source sequence'
-    for i in (0, 1, 2):
-        yield i
+    yield from (0, 1, 2)
 
 def isEven(x):
     'Test predicate'
@@ -45,8 +44,7 @@ def tupleize(*args):
     return args
 
 def irange(n):
-    for i in range(n):
-        yield i
+    yield from range(n)
 
 class StopNow:
     'Class emulating an empty iterable.'
@@ -613,13 +611,10 @@ class TestBasicOps(unittest.TestCase):
         self.assertEqual(type(next(c)), int)
         self.assertEqual(type(next(c)), float)
         for i in (maxsize-5, maxsize+5 ,-10, -1, 0, 10, maxsize-5, sys.maxsize+5):
-            for j in  (maxsize-5, maxsize+5 ,-10, -1, 0, 1, 10, maxsize-5, maxsize+5):
+            for j in (maxsize-5, maxsize+5 ,-10, -1, 0, 1, 10, maxsize-5, maxsize+5):
                 # Test repr
                 r1 = repr(count(i, j))
-                if j == 1:
-                    r2 = ('count(%r)' % i)
-                else:
-                    r2 = ('count(%r, %r)' % (i, j))
+                r2 = ('count(%r)' % i) if j == 1 else ('count(%r, %r)' % (i, j))
                 self.assertEqual(r1, r2)
 #                 for proto in range(pickle.HIGHEST_PROTOCOL + 1):
 #                     self.pickletest(proto, count(i, j))
@@ -796,7 +791,7 @@ class TestBasicOps(unittest.TestCase):
         class ExpectedError(Exception):
             pass
         def delayed_raise(n=0):
-            for i in range(n):
+            for _ in range(n):
                 yield 'yo'
             raise ExpectedError
         def gulp(iterable, keyp=None, func=list):
@@ -820,11 +815,10 @@ class TestBasicOps(unittest.TestCase):
 
         # keyfunc failure
         def keyfunc(obj):
-            if keyfunc.skip > 0:
-                keyfunc.skip -= 1
-                return obj
-            else:
+            if keyfunc.skip <= 0:
                 raise ExpectedError
+            keyfunc.skip -= 1
+            return obj
 
         # keyfunc failure on outer object
         keyfunc.skip = 0
@@ -874,7 +868,7 @@ class TestBasicOps(unittest.TestCase):
 
     def test_zip(self):
         # XXX This is rather silly now that builtin zip() calls zip()...
-        ans = [(x,y) for x, y in zip('abc',count())]
+        ans = list(zip('abc',count()))
         self.assertEqual(ans, [('a', 0), ('b', 1), ('c', 2)])
         self.assertEqual(list(zip('abc', range(6))), lzip('abc', range(6)))
         self.assertEqual(list(zip('abcdef', range(3))), lzip('abcdef', range(3)))
@@ -885,8 +879,7 @@ class TestBasicOps(unittest.TestCase):
         self.assertRaises(TypeError, zip, range(3), 3)
         self.assertEqual([tuple(list(pair)) for pair in zip('abc', 'def')],
                          lzip('abc', 'def'))
-        self.assertEqual([pair for pair in zip('abc', 'def')],
-                         lzip('abc', 'def'))
+        self.assertEqual(list(zip('abc', 'def')), lzip('abc', 'def'))
 
 #     @support.impl_detail("tuple reuse is specific to CPython")
 #     def test_zip_tuple_reuse(self):
@@ -923,8 +916,11 @@ class TestBasicOps(unittest.TestCase):
                 [range(1000), range(0), range(3000,3050), range(1200), range(1500)],
                 [range(1000), range(0), range(3000,3050), range(1200), range(1500), range(0)],
             ]:
-            target = [tuple([arg[i] if i < len(arg) else None for arg in args])
-                      for i in range(max(map(len, args)))]
+            target = [
+                tuple(arg[i] if i < len(arg) else None for arg in args)
+                for i in range(max(map(len, args)))
+            ]
+
             self.assertEqual(list(zip_longest(*args)), target)
             self.assertEqual(list(zip_longest(*args, **{})), target)
             target = [tuple((e is None and 'X' or e) for e in t) for t in target]   # Replace None fills with 'X'
@@ -940,7 +936,6 @@ class TestBasicOps(unittest.TestCase):
                          list(zip(list('abc')+[None], 'defg'))) # empty keyword dict
         self.assertRaises(TypeError, zip_longest, 3)
         self.assertRaises(TypeError, zip_longest, range(3), 3)
-
 #         for stmt in [
 #             "zip_longest('abc', fv=1)",
 #             "zip_longest('abc', fillvalue=1, bogus_keyword=None)",
@@ -954,8 +949,7 @@ class TestBasicOps(unittest.TestCase):
 
         self.assertEqual([tuple(list(pair)) for pair in zip_longest('abc', 'def')],
                          list(zip('abc', 'def')))
-        self.assertEqual([pair for pair in zip_longest('abc', 'def')],
-                         list(zip('abc', 'def')))
+        self.assertEqual(list(zip_longest('abc', 'def')), list(zip('abc', 'def')))
 
 #     @support.impl_detail("tuple reuse is specific to CPython")
 #     def test_zip_longest_tuple_reuse(self):
@@ -982,23 +976,17 @@ class TestBasicOps(unittest.TestCase):
             def __iter__(self): # its iterator is itself
                 return self
             def __next__(self):
-                if self.t > 0:
-                    self.t -= 1
-                    return self.o
-                else:
+                if self.t <= 0:
                     raise self.e
+                self.t -= 1
+                return self.o
 
         # Formerly this code in would fail in debug mode
         # with Undetected Error and Stop Iteration
         r1 = Repeater(1, 3, StopIteration)
         r2 = Repeater(2, 4, StopIteration)
         def run(r1, r2):
-            result = []
-            for i, j in zip_longest(r1, r2, fillvalue=0):
-                # with support.captured_output('stdout'):
-                #     print((i, j))
-                result.append((i, j))
-            return result
+            return list(zip_longest(r1, r2, fillvalue=0))
         self.assertEqual(run(r1, r2), [(1,2), (1,2), (1,2), (0,2)])
 
         # Formerly, the RuntimeError would be lost
@@ -1796,8 +1784,7 @@ class TestGC(unittest.TestCase):
 
 def R(seqn):
     'Regular generator'
-    for i in seqn:
-        yield i
+    yield from seqn
 
 class G:
     'Sequence using __getitem__'
@@ -1825,8 +1812,7 @@ class Ig:
         self.seqn = seqn
         self.i = 0
     def __iter__(self):
-        for val in self.seqn:
-            yield val
+        yield from self.seqn
 
 class X:
     'Missing __getitem__ and __iter__'
@@ -2010,8 +1996,8 @@ class TestVariousIteratorArgs(unittest.TestCase):
             for g in (G, I, Ig, S, L, R):
                 tgt = []
                 for elem in g(s):
-                    if not tgt and isOdd(elem): continue
-                    tgt.append(elem)
+                    if tgt or not tgt and not isOdd(elem):
+                        tgt.append(elem)
                 self.assertEqual(list(dropwhile(isOdd, g(s))), tgt)
             self.assertRaises(TypeError, dropwhile, isOdd, X(s))
             self.assertRaises(TypeError, dropwhile, isOdd, N(s))
@@ -2081,7 +2067,6 @@ class RegressionTests(unittest.TestCase):
             yield 1
             hist.append(1)
             raise AssertionError
-            hist.append(2)
 
         def gen2(x):
             hist.append(3)
@@ -2104,7 +2089,7 @@ class RegressionTests(unittest.TestCase):
         # Make sure itertools.chain doesn't run into recursion limits when
         # dealing with long chains of empty iterables. Even with a high
         # number this would probably only fail in Py_DEBUG mode.
-        it = chain.from_iterable(() for unused in range(100000))  
+        it = chain.from_iterable(() for _ in range(100000))
         self.assertRaises(StopIteration, next, it)
 
 #     def test_issue30347_1(self):
