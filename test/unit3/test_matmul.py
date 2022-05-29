@@ -83,8 +83,7 @@ class MatMulTests(unittest.TestCase):
         c = a @ b
         self.assertEqual(c, 6)
         def foo(x, y):
-            z = x @ y
-            return z
+            return x @ y
         self.assertRaises(TypeError, foo, b, a)
         self.assertRaises(AttributeError, lambda x: x.__rmatmul__, a)
         class C:

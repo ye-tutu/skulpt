@@ -16,8 +16,8 @@ class TestNumbers(unittest.TestCase):
     def test_float(self):
         # self.assertEqual(7.3, float(7.3).real)
         # self.assertEqual(0, float(7.3).imag)
-        self.assertEqual(7.3, float(7.3).conjugate())
-        self.assertEqual(-7.3, float(-7.3).conjugate())
+        self.assertEqual(7.3, 7.3.conjugate())
+        self.assertEqual(-7.3, -7.3.conjugate())
 
         c1, c2 = complex(3, 2), complex(4,1)
         # XXX: This is not ideal, but see the comment in math_trunc().

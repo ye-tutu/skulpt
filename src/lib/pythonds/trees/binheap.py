@@ -34,10 +34,7 @@ class BinHeap:
         if i * 2 + 1 > self.currentSize:
             return i * 2
         else:
-            if self.heapList[i * 2] < self.heapList[i * 2 + 1]:
-                return i * 2
-            else:
-                return i * 2 + 1
+            return i * 2 if self.heapList[i * 2] < self.heapList[i * 2 + 1] else i * 2 + 1
 
     def percUp(self,i):
         while i // 2 > 0:
@@ -61,7 +58,4 @@ class BinHeap:
         return retval
         
     def isEmpty(self):
-        if currentSize == 0:
-            return True
-        else:
-            return False
+        return currentSize == 0

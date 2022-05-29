@@ -280,8 +280,8 @@ class ClassPropertiesAndMethods(unittest.TestCase):
 
         class Sub(Base):
             @classmethod
-            def test(klass):
-                return super(Sub,klass).aProp
+            def test(cls):
+                return super(Sub, cls).aProp
 
         self.assertEqual(Sub.test(), Base.aProp)
 

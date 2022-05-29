@@ -22,10 +22,10 @@ from copy import deepcopy
 class DocDescr(object):
     def __get__(self, object, otype):
         if object:
-            object = object.__class__.__name__ + ' instance'
+            object = f'{object.__class__.__name__} instance'
         if otype:
             otype = otype.__name__
-        return 'object=%s; type=%s' % (object, otype)
+        return f'object={object}; type={otype}'
 
 class Descr(object):
 
@@ -303,20 +303,12 @@ class OperatorsTest(unittest.TestCase):
         self.binop_test({1:2,3:4}, 1, 2, lambda a,b: a[b], "__getitem__")
 
         d = {1:2, 3:4}
-        l1 = []
-        for i in list(d.keys()):
-            l1.append(i)
-        l = []
-        for i in iter(d):
-            l.append(i)
+        l1 = list(list(d.keys()))
+        l = list(iter(d))
         self.assertEqual(l, l1)
-        l = []
-        for i in d.__iter__():
-            l.append(i)
+        l = list(d.__iter__())
         self.assertEqual(l, l1)
-        l = []
-        for i in dict.__iter__(d):
-            l.append(i)
+        l = list(dict.__iter__(d))
         self.assertEqual(l, l1)
         d = {1:2, 3:4}
         self.unop_test(d, 2, lambda a:len(a), "__len__")
@@ -331,14 +323,14 @@ class OperatorsTest(unittest.TestCase):
 
         for name, expr in self.binops.items():
             if name not in skip:
-                name = "__%s__" % name
+                name = f"__{name}__"
                 if hasattr(a, name):
                     res = expr(**dict)
                     self.binop_test(a, b, res, expr, name)
 
         for name, expr in list(self.unops.items()):
             if name not in skip:
-                name = "__%s__" % name
+                name = f"__{name}__"
                 if hasattr(a, name):
                     res = expr(a)
                     self.unop_test(a, res, expr, name)
@@ -1094,7 +1086,7 @@ order (MRO) for bases """
                     #     self.fail("Message %r, expected %r" %
                     #               (str(msg), expected))
             else:
-                self.fail("Expected %s" % exc)
+                self.fail(f"Expected {exc}")
 
         class A(object): pass
         class B(A): pass
@@ -2273,7 +2265,7 @@ order (MRO) for bases """
             def __lt__(self, other):
                 return self.x < other
             def __str__(self):
-                return "Proxy:%s" % self.x
+                return f"Proxy:{self.x}"
             def __repr__(self):
                 return "Proxy(%r)" % self.x
             def __contains__(self, value):
@@ -2770,8 +2762,8 @@ order (MRO) for bases """
 
         class Sub(Base):
             @classmethod
-            def test(klass):
-                return super(Sub,klass).aProp
+            def test(cls):
+                return super(Sub, cls).aProp
 
         self.assertEqual(Sub.test(), Base.aProp)
 
@@ -3190,37 +3182,37 @@ order (MRO) for bases """
                 def __eq__(self, other):
                     if isinstance(other, C):
                         return self.value == other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value == other
                     return NotImplemented
                 def __ne__(self, other):
                     if isinstance(other, C):
                         return self.value != other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value != other
                     return NotImplemented
                 def __lt__(self, other):
                     if isinstance(other, C):
                         return self.value < other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value < other
                     return NotImplemented
                 def __le__(self, other):
                     if isinstance(other, C):
                         return self.value <= other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value <= other
                     return NotImplemented
                 def __gt__(self, other):
                     if isinstance(other, C):
                         return self.value > other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value > other
                     return NotImplemented
                 def __ge__(self, other):
                     if isinstance(other, C):
                         return self.value >= other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value >= other
                     return NotImplemented
 
@@ -3270,37 +3262,37 @@ order (MRO) for bases """
                 def __eq__(self, other):
                     if isinstance(other, C):
                         return self.value == other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value == other
                     return NotImplemented
                 def __ne__(self, other):
                     if isinstance(other, C):
                         return self.value != other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value != other
                     return NotImplemented
                 def __lt__(self, other):
                     if isinstance(other, C):
                         return self.value < other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value < other
                     return NotImplemented
                 def __le__(self, other):
                     if isinstance(other, C):
                         return self.value <= other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value <= other
                     return NotImplemented
                 def __gt__(self, other):
                     if isinstance(other, C):
                         return self.value > other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value > other
                     return NotImplemented
                 def __ge__(self, other):
                     if isinstance(other, C):
                         return self.value >= other.value
-                    if isinstance(other, int) or isinstance(other, int):
+                    if isinstance(other, int):
                         return self.value >= other
                     return NotImplemented
             c1 = C(1)
@@ -3599,9 +3591,7 @@ order (MRO) for bases """
         self.assertEqual(d.foo, 42)
         self.assertEqual(d.bar, 42)
         def __getattribute__(self, name):
-            if name == "foo":
-                return 24
-            return object.__getattribute__(self, name)
+            return 24 if name == "foo" else object.__getattribute__(self, name)
         A.__getattribute__ = __getattribute__
         self.assertEqual(d.foo, 24)
         self.assertEqual(d.bar, 42)
@@ -3674,7 +3664,7 @@ order (MRO) for bases """
             # def __str__(self):
             #     return binascii.b2a_hex(self.encode('ascii')).decode("ascii")
             def __repr__(self):
-                return self + " repr"
+                return f"{self} repr"
 
         o = octetstring('A')
         self.assertEqual(type(o), octetstring)
@@ -4435,7 +4425,7 @@ order (MRO) for bases """
 
         class C(B):
             def f(self):
-                return super(C, self).f() + "->C.f"
+                return f"{super(C, self).f()}->C.f"
 
         obj = C()
         p = Proxy(obj)
@@ -4478,7 +4468,7 @@ order (MRO) for bases """
     def test_wrapper_segfault(self):
         # SF 927248: deeply nested wrappers could cause stack overflow
         f = lambda:None
-        for i in range(100000):
+        for _ in range(100000):
             f = f.__call__
         f = None
 
@@ -4488,7 +4478,7 @@ order (MRO) for bases """
         class StdoutGuard:
             def __getattr__(self, attr):
                 sys.stdout = sys.__stdout__
-                raise RuntimeError("Premature access to sys.stdout.%s" % attr)
+                raise RuntimeError(f"Premature access to sys.stdout.{attr}")
         sys.stdout = StdoutGuard()
         try:
             print("Oops!")
@@ -4860,7 +4850,7 @@ order (MRO) for bases """
 
         # make sure we have an example of each type of descriptor
         for d, n in zip(descriptors, types):
-            self.assertEqual(type(d).__name__, n + '_descriptor')
+            self.assertEqual(type(d).__name__, f'{n}_descriptor')
 
         # skulpt does not support qualnames on type objects.
         # for d in descriptors:

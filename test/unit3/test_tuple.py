@@ -17,8 +17,7 @@ import sys
 # This is used for checking the constructor (here and in test_deque.py)
 def iterfunc(seqn):
     'Regular generator'
-    for i in seqn:
-        yield i
+    yield from seqn
 
 class Sequence:
     'Sequence using __getitem__'
@@ -46,8 +45,7 @@ class IterGen:
         self.seqn = seqn
         self.i = 0
     def __iter__(self):
-        for val in self.seqn:
-            yield val
+        yield from self.seqn
 
 class IterNextOnly:
     'Missing __getitem__ and __iter__'
@@ -184,7 +182,7 @@ class CommonTest:
         l = [0, 1, 2, 3, 4]
         u = self.type2test(l)
 
-        self.assertEqual(u[0:0], self.type2test())
+        self.assertEqual(u[:0], self.type2test())
         self.assertEqual(u[1:2], self.type2test([1]))
         self.assertEqual(u[-2:-1], self.type2test([3]))
         self.assertEqual(u[-1000:1000], u)
@@ -315,7 +313,7 @@ class CommonTest:
         # Verify that __getitem__ overrides are not recognized by __iter__
         class T(self.type2test):
             def __getitem__(self, key):
-                return str(key) + '!!!'
+                return f'{str(key)}!!!'
         self.assertEqual(next(iter(T((1,2)))), 1)
 
     def test_repeat(self):
@@ -472,8 +470,8 @@ class TupleTest(seq_tests.CommonTest, unittest.TestCase):
         t0_3 = (0, 1, 2, 3)
         t0_3_bis = tuple(t0_3)
         self.assertTrue(t0_3 is t0_3_bis)
-        self.assertEqual(tuple([]), ())
-        self.assertEqual(tuple([0, 1, 2, 3]), (0, 1, 2, 3))
+        self.assertEqual((), ())
+        self.assertEqual((0, 1, 2, 3), (0, 1, 2, 3))
         self.assertEqual(tuple(''), ())
         self.assertEqual(tuple('spam'), ('s', 'p', 'a', 'm'))
         self.assertEqual(tuple(x for x in range(10) if x % 2),
@@ -486,7 +484,7 @@ class TupleTest(seq_tests.CommonTest, unittest.TestCase):
 
     def test_truth(self):
         super().test_truth()
-        self.assertTrue(not ())
+        self.assertTrue(not False)
         self.assertTrue((42, ))
 
     def test_len(self):
@@ -512,8 +510,7 @@ class TupleTest(seq_tests.CommonTest, unittest.TestCase):
     def test_tupleresizebug(self):
         # Check that a specific bug in _PyTuple_Resize() is squashed.
         def f():
-            for i in range(1000):
-                yield i
+            yield from range(1000)
         self.assertEqual(list(tuple(f())), list(range(1000)))
 
     # We expect tuples whose base components have deterministic hashes to

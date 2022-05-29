@@ -25,7 +25,7 @@ L = [
 class IntTestCases(unittest.TestCase):
 
     def test_basic(self):
-        self.assertEqual(int(314), 314)
+        self.assertEqual(314, 314)
         self.assertEqual(int(3.14), 3)
         # Check that conversion from float truncates towards zero
         self.assertEqual(int(-3.14), -3)

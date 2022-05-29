@@ -21,7 +21,7 @@ MAXDIGITS = 15
 special = [0, 1, 2, BASE, BASE >> 1, 0x5555555555555555, 0xaaaaaaaaaaaaaaaa]
 #  some solid strings of one bits
 p2 = 4  # 0 and 1 already added
-for i in range(2*SHIFT):
+for _ in range(2*SHIFT):
     special.append(p2 - 1)
     p2 = p2 << 1
 del p2
@@ -131,7 +131,7 @@ class LongTest(unittest.TestCase):
             bits = (r >> 1) + 1
             bits = min(bits, nbits_hi - nbits)
             self.assertTrue(1 <= bits <= SHIFT)
-            nbits = nbits + bits
+            nbits += bits
             answer = answer << bits
             if r & 1:
                 answer = answer | ((1 << bits) - 1)
@@ -144,9 +144,9 @@ class LongTest(unittest.TestCase):
     # Get random long consisting of ndigits random digits (relative to base
     # BASE).  The sign bit is also random.
 
-    def getran2(ndigits):
+    def getran2(self):
         answer = 0
-        for i in range(ndigits):
+        for _ in range(self):
             answer = (answer << SHIFT) | random.randint(0, MASK)
         if random.random() < 0.5:
             answer = -answer
@@ -316,7 +316,7 @@ class LongTest(unittest.TestCase):
     def test_format(self):
         for x in special:
             self.check_format_1(x)
-        for i in range(10):
+        for _ in range(10):
             for lenx in range(1, MAXDIGITS+1):
                 x = self.getran(lenx)
                 self.check_format_1(x)
@@ -407,8 +407,8 @@ class LongTest(unittest.TestCase):
         except OverflowError:
             expected = 'overflow'
 
-        msg = ("Error in conversion of integer {} to float.  "
-               "Got {}, expected {}.".format(n, actual, expected))
+        msg = f"Error in conversion of integer {n} to float.  Got {actual}, expected {expected}."
+
         self.assertEqual(actual, expected, msg)
 
     # @support.requires_IEEE_754
@@ -468,15 +468,23 @@ class LongTest(unittest.TestCase):
         # Compare builtin float conversion with pure Python int_to_float
         # function above.
         test_values = [
-            int_dbl_max-1, int_dbl_max, int_dbl_max+1,
-            halfway-1, halfway, halfway + 1,
-            top_power-1, top_power, top_power+1,
-            2*top_power-1, 2*top_power, top_power*top_power,
+            int_dbl_max - 1,
+            int_dbl_max,
+            int_dbl_max + 1,
+            halfway - 1,
+            halfway,
+            halfway + 1,
+            top_power - 1,
+            top_power,
+            top_power + 1,
+            2 * top_power - 1,
+            2 * top_power,
+            top_power * top_power,
+            *exact_values,
         ]
-        test_values.extend(exact_values)
+
         for p in range(-4, 8):
-            for x in range(-128, 128):
-                test_values.append(2**(p+53) + x)
+            test_values.extend(2**(p+53) + x for x in range(-128, 128))
         for value in test_values:
             self.check_float_conversion(value)
             self.check_float_conversion(-value)
@@ -693,8 +701,6 @@ class LongTest(unittest.TestCase):
         self.assertRaises(ValueError, format, 3, "_c")   # underscore,
         self.assertRaises(ValueError, format, 3, ",c")   # comma, and
         self.assertRaises(ValueError, format, 3, "+c")   # sign not allowed
-                                                         # with 'c'
-
         # self.assertRaisesRegex(ValueError, 'Cannot specify both', format, 3, '_,')
         # self.assertRaisesRegex(ValueError, 'Cannot specify both', format, 3, ',_')
         # self.assertRaisesRegex(ValueError, 'Cannot specify both', format, 3, '_,d')
@@ -716,7 +722,7 @@ class LongTest(unittest.TestCase):
         # ensure that only int and float type specifiers work
         for format_spec in ([chr(x) for x in range(ord('a'), ord('z')+1)] +
                             [chr(x) for x in range(ord('A'), ord('Z')+1)]):
-            if not format_spec in 'bcdoxXeEfFgGn%':
+            if format_spec not in 'bcdoxXeEfFgGn%':
                 self.assertRaises(ValueError, format, 0, format_spec)
                 self.assertRaises(ValueError, format, 1, format_spec)
                 self.assertRaises(ValueError, format, -1, format_spec)
@@ -829,8 +835,11 @@ class LongTest(unittest.TestCase):
         except ZeroDivisionError:
             got = 'zerodivision'
 
-        self.assertEqual(expected, got, "Incorrectly rounded division {}/{}: "
-                         "expected {}, got {}".format(a, b, expected, got))
+        self.assertEqual(
+            expected,
+            got,
+            f"Incorrectly rounded division {a}/{b}: expected {expected}, got {got}",
+        )
 
     # @support.requires_IEEE_754
     def test_correctly_rounded_true_division(self):
@@ -1082,7 +1091,7 @@ class LongTest(unittest.TestCase):
 
         # nonnegative second argument: round(x, n) should just return x
         for n in range(5):
-            for i in range(100):
+            for _ in range(100):
                 x = random.randrange(-10000, 10000)
                 got = round(x, n)
                 self.assertEqual(got, x)
@@ -1091,7 +1100,7 @@ class LongTest(unittest.TestCase):
             self.assertEqual(round(8979323, huge_n), 8979323)
 
         # omitted second argument
-        for i in range(100):
+        for _ in range(100):
             x = random.randrange(-10000, 10000)
             got = round(x)
             self.assertEqual(got, x)

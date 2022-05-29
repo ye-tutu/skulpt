@@ -9,8 +9,7 @@ import sys
 # This is used for checking the constructor (here and in test_deque.py)
 def iterfunc(seqn):
     'Regular generator'
-    for i in seqn:
-        yield i
+    yield from seqn
 
 class Sequence:
     'Sequence using __getitem__'
@@ -38,8 +37,7 @@ class IterGen:
         self.seqn = seqn
         self.i = 0
     def __iter__(self):
-        for val in self.seqn:
-            yield val
+        yield from self.seqn
 
 class IterNextOnly:
     'Missing __getitem__ and __iter__'
@@ -294,7 +292,7 @@ class CommonTest(unittest.TestCase):
         # Verify that __getitem__ overrides are not recognized by __iter__
         class T(self.type2test):
             def __getitem__(self, key):
-                return str(key) + '!!!'
+                return f'{str(key)}!!!'
         self.assertEqual(iter(T((1,2))).next(), 1)
 
     def test_repeat(self):

@@ -3,7 +3,7 @@ import unittest
 #examples for testing
 def add_one(num):
     """function for testing"""
-    if num != 2 and num != 6.0 and num != -151.5:
+    if num not in [2, 6.0, -151.5]:
         return num + 1
 
 lst1 = [1, 2, 3, 4, 5]
@@ -27,7 +27,7 @@ class Squares:
         if not 0 <= i < self.max: raise IndexError
         n = len(self.sofar)
         while n <= i:
-            self.sofar.append(n*n)
+            self.sofar.append(n**2)
             n += 1
         return self.sofar[i]
 
@@ -153,7 +153,6 @@ class FilterTest(unittest.TestCase):
         class BadSeq:
             def __iter__(self):
                 raise ValueError
-                yield None
         self.assertRaises(ValueError, list, map(lambda x: x, BadSeq()))
         def badfunc(x):
             raise RuntimeError

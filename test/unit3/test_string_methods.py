@@ -8,7 +8,7 @@ class StringMethodsTests(unittest.TestCase):
         self.assertEqual("O" + "K", "OK")
 
         def test(t):
-            t = "O" + t
+            t = f"O{t}"
             return t
 
         self.assertEqual(test("K"), "OK")
@@ -59,7 +59,7 @@ class StringMethodsTests(unittest.TestCase):
         self.assertFalse(i in '+-*/')
 
     def test_str_func(self):
-        self.assertEqual(str("weewaa"), "weewaa")
+        self.assertEqual("weewaa", "weewaa")
 
     def test_repr(self):
         self.assertEqual(repr("weewaa"), "'weewaa'")
@@ -94,7 +94,7 @@ class StringMethodsTests(unittest.TestCase):
         self.assertEqual('%c' % 0x7f, '\x7f')
 
         def f(x):
-            return str("f(%s) called" % x)
+            return str(f"f({x}) called")
 
         self.assertEqual(f(3), "f(3) called")
         self.assertEqual('%d' % 10.2, "10")

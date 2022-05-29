@@ -9,7 +9,6 @@ class InheritanceTesting(unittest.TestCase):
 
             def stuff(self):
                 return "Base.stuff"
-                self.myfunc()
 
         class Derived(Base):
             def myfunc(self): 

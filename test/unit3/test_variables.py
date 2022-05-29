@@ -69,7 +69,7 @@ class VariableTests(unittest.TestCase):
         x = 'OK',
         self.assertEqual(x[0],'OK')
         a = (1,)
-        self.assertEqual(a, tuple([1]))
+        self.assertEqual(a, (1, ))
         x = [1,2,]
         self.assertEqual(x[1],2)
         self.assertEqual(x,[1,2])
@@ -110,7 +110,7 @@ class VariableTests(unittest.TestCase):
             cell = 19
             instanceof = gbl * cell
             static = instanceof
-            return(([loc, gbl, cell, instanceof, static], true == var, volatile != package))
+            return [loc, gbl, cell, static, static], true == var, volatile != package
         self.assertEqual(package(), ([4, 42, 19, 798, 798], False, True))
 
     def test_methodnames(self):

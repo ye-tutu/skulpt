@@ -25,40 +25,40 @@ class cdeco(object):
         global cnt
         self.id = cnt
         cnt += 1
-        log2.append("cdeco.__init__" + str(self.id))
-        log2.append("  " + str(fget))
-        log2.append("  " + str(fset))
-        log2.append("  " + str(fdel))
+        log2.append(f"cdeco.__init__{str(self.id)}")
+        log2.append(f"  {str(fget)}")
+        log2.append(f"  {str(fset)}")
+        log2.append(f"  {str(fdel)}")
         self.fget = fget
         self.fset = fset
         self.fdel = fdel
 
     def __get__(self, obj, loc):
-        log2.append("cdeco.__get__" + str(self.id))
+        log2.append(f"cdeco.__get__{str(self.id)}")
         return self.fget(obj)
 
     def __set__(self, obj, value):
-        log2.append("cdeco.__set__" + str(self.id))
+        log2.append(f"cdeco.__set__{str(self.id)}")
         if self.fset is None:
             raise AttributeError("can't set attribute")
         self.fset(obj, value)
 
     def __delete__(self, obj):
-        log2.append("cdeco.__delete__" + str(self.id))
+        log2.append(f"cdeco.__delete__{str(self.id)}")
         if self.fdel is None:
             raise AttributeError("can't delete attribute")
         self.fdel(obj)
 
     def getter(self, fset):
-        log2.append("cdeco.getter" + str(self.id))
+        log2.append(f"cdeco.getter{str(self.id)}")
         return type(self)(fget, self.fset, self.fdel)
 
     def setter(self, fset):
-        log2.append("cdeco.setter" + str(self.id))
+        log2.append(f"cdeco.setter{str(self.id)}")
         return type(self)(self.fget, fset, self.fdel)
 
     def deleter(self, fdel):
-        log2.append("cdeco.deleter" + str(self.id))
+        log2.append(f"cdeco.deleter{str(self.id)}")
         return type(self)(self.fget, self.fset, fdel)
 
 class testclass:

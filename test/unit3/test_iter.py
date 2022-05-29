@@ -102,8 +102,7 @@ class TestCase(unittest.TestCase):
         res = []
         for i in iter(seq):
             for j in iter(seq):
-                for k in iter(seq):
-                    res.append((i, j, k))
+                res.extend((i, j, k) for k in iter(seq))
         self.assertEqual(res, TRIPLETS)
 
     # Test triple list comprehension using iterators
@@ -257,7 +256,7 @@ class TestCase(unittest.TestCase):
     def test_builtin_list(self):
         self.assertEqual(list(SequenceClass(5)), list(range(5)))
         self.assertEqual(list(SequenceClass(0)), [])
-        self.assertEqual(list(()), [])
+        self.assertEqual([], [])
 
         d = {"one": 1, "two": 2, "three": 3}
         self.assertEqual(list(d), list(d.keys()))
@@ -269,8 +268,8 @@ class TestCase(unittest.TestCase):
     def test_builtin_tuple(self):
         self.assertEqual(tuple(SequenceClass(5)), (0, 1, 2, 3, 4))
         self.assertEqual(tuple(SequenceClass(0)), ())
-        self.assertEqual(tuple([]), ())
-        self.assertEqual(tuple(()), ())
+        self.assertEqual((), ())
+        self.assertEqual((), ())
         self.assertEqual(tuple("abc"), ("a", "b", "c"))
 
         d = {"one": 1, "two": 2, "three": 3}
@@ -614,8 +613,7 @@ class TestCase(unittest.TestCase):
 
     def test_sinkstate_yield(self):
         def gen():
-            for i in range(5):
-                yield i
+            yield from range(5)
         b = gen()
         self.assertEqual(list(b), list(range(5)))
         self.assertEqual(list(b), [])
@@ -640,8 +638,7 @@ class TestCase(unittest.TestCase):
         # and then shrinking at the end.  This is a basic smoke
         # test for that scenario.
         def gen():
-            for i in range(500):
-                yield i
+            yield from range(500)
         lst = [0] * 500
         for i in range(240):
             lst.pop(0)

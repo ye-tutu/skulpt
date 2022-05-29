@@ -145,19 +145,14 @@ def result_check(expected, got, ulp_tol=5, abs_tol=0.0):
         if math.isnan(expected) and math.isnan(got):
             # Pass, since both nan
             failure = None
-        elif math.isinf(expected) or math.isinf(got):
-            # We already know they're not equal, drop through to failure
-            pass
-        else:
+        elif not math.isinf(expected) and not math.isinf(got):
             # Both are finite floats (now). Are they close enough?
             failure = ulp_abs_check(expected, got, ulp_tol, abs_tol)
 
     # arguments are not equal, and if numeric, are too far apart
     if failure is not None:
         fail_fmt = "expected {!r}, got {!r}"
-        fail_msg = fail_fmt.format(expected, got)
-        fail_msg += ' ({})'.format(failure)
-        return fail_msg
+        return fail_fmt.format(expected, got) + f' ({failure})'
     else:
         return None
 
@@ -185,7 +180,7 @@ class MathTests(unittest.TestCase):
         """
         failure = result_check(expected, got, ulp_tol, abs_tol)
         if failure is not None:
-            self.fail("{}: {}".format(name, failure))
+            self.fail(f"{name}: {failure}")
 
     def testConstants(self):
         # Ref: Abramowitz & Stegun (Dover, 1965)

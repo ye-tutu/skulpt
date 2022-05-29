@@ -42,8 +42,10 @@ from codecs import BOM_UTF8, lookup
 from token import *
 
 def group(*choices): return '(' + '|'.join(choices) + ')'
-def any(*choices): return group(*choices) + '*'
-def maybe(*choices): return group(*choices) + '?'
+def any(*choices):
+    return f'{group(*choices)}*'
+def maybe(*choices):
+    return f'{group(*choices)}?'
 
 Whitespace = r'[ \f\t]*'
 Comment = r'#[^\r\n]*'
@@ -59,7 +61,7 @@ Exponent = r'[eE][-+]?\d+'
 Pointfloat = group(r'\d+\.\d*', r'\.\d+') + maybe(Exponent)
 Expfloat = r'\d+' + Exponent
 Floatnumber = group(Pointfloat, Expfloat)
-Imagnumber = group(r'\d+[jJ]', Floatnumber + r'[jJ]')
+Imagnumber = group(r'\d+[jJ]', f'{Floatnumber}[jJ]')
 Number = group(Imagnumber, Floatnumber, Intnumber)
 
 # Tail end of ' string.
@@ -120,31 +122,81 @@ endprogs = {"'": re.compile(Single), '"': re.compile(Double),
             'u': None, 'U': None,
             'b': None, 'B': None}
 
-triple_quoted = {}
-for t in ("'''", '"""',
-          "r'''", 'r"""', "R'''", 'R"""',
-          "u'''", 'u"""', "U'''", 'U"""',
-          "b'''", 'b"""', "B'''", 'B"""',
-          "ur'''", 'ur"""', "Ur'''", 'Ur"""',
-          "uR'''", 'uR"""', "UR'''", 'UR"""',
-          "br'''", 'br"""', "Br'''", 'Br"""',
-          "bR'''", 'bR"""', "BR'''", 'BR"""',):
-    triple_quoted[t] = t
-single_quoted = {}
-for t in ("'", '"',
-          "r'", 'r"', "R'", 'R"',
-          "u'", 'u"', "U'", 'U"',
-          "b'", 'b"', "B'", 'B"',
-          "ur'", 'ur"', "Ur'", 'Ur"',
-          "uR'", 'uR"', "UR'", 'UR"',
-          "br'", 'br"', "Br'", 'Br"',
-          "bR'", 'bR"', "BR'", 'BR"', ):
-    single_quoted[t] = t
+triple_quoted = {
+    t: t
+    for t in (
+        "'''",
+        '"""',
+        "r'''",
+        'r"""',
+        "R'''",
+        'R"""',
+        "u'''",
+        'u"""',
+        "U'''",
+        'U"""',
+        "b'''",
+        'b"""',
+        "B'''",
+        'B"""',
+        "ur'''",
+        'ur"""',
+        "Ur'''",
+        'Ur"""',
+        "uR'''",
+        'uR"""',
+        "UR'''",
+        'UR"""',
+        "br'''",
+        'br"""',
+        "Br'''",
+        'Br"""',
+        "bR'''",
+        'bR"""',
+        "BR'''",
+        'BR"""',
+    )
+}
+
+single_quoted = {
+    t: t
+    for t in (
+        "'",
+        '"',
+        "r'",
+        'r"',
+        "R'",
+        'R"',
+        "u'",
+        'u"',
+        "U'",
+        'U"',
+        "b'",
+        'b"',
+        "B'",
+        'B"',
+        "ur'",
+        'ur"',
+        "Ur'",
+        'Ur"',
+        "uR'",
+        'uR"',
+        "UR'",
+        'UR"',
+        "br'",
+        'br"',
+        "Br'",
+        'Br"',
+        "bR'",
+        'bR"',
+        "BR'",
+        'BR"',
+    )
+}
 
 tabsize = 8
 
 class TokenError(Exception): pass
-
 class StopTokenizing(Exception): pass
 
 def printtoken(type, token, xxx_todo_changeme, xxx_todo_changeme1, line): # for testing
@@ -186,8 +238,7 @@ class Untokenizer:
     def add_whitespace(self, start):
         row, col = start
         assert row <= self.prev_row
-        col_offset = col - self.prev_col
-        if col_offset:
+        if col_offset := col - self.prev_col:
             self.tokens.append(" " * col_offset)
 
     def untokenize(self, iterable):
@@ -273,7 +324,7 @@ def detect_encoding(readline):
             codec = lookup(encoding)
         except LookupError:
             # This behaviour mimics the Python interpreter
-            raise SyntaxError("unknown encoding: " + encoding)
+            raise SyntaxError(f"unknown encoding: {encoding}")
 
         if bom_found and codec.name != 'utf-8':
             # This behaviour mimics the Python interpreter
@@ -339,12 +390,12 @@ def generate_tokens(readline):
     logical line; continuation lines are included.
     """
     lnum = parenlev = continued = 0
-    namechars, numchars = string.ascii_letters + '_', '0123456789'
+    namechars, numchars = f'{string.ascii_letters}_', '0123456789'
     contstr, needcont = '', 0
     contline = None
     indents = [0]
 
-    while 1:                                   # loop over lines in stream
+    while 1:                               # loop over lines in stream
         try:
             line = readline()
         except StopIteration:
@@ -352,11 +403,10 @@ def generate_tokens(readline):
         lnum = lnum + 1
         pos, max = 0, len(line)
 
-        if contstr:                            # continued string
+        if contstr:                    # continued string
             if not line:
                 raise TokenError("EOF in multi-line string", strstart)
-            endmatch = endprog.match(line)
-            if endmatch:
+            if endmatch := endprog.match(line):
                 pos = end = endmatch.end(0)
                 yield (STRING, contstr + line[:end],
                        strstart, (lnum, end), contline + line)
@@ -408,14 +458,13 @@ def generate_tokens(readline):
                 indents = indents[:-1]
                 yield (DEDENT, '', (lnum, pos), (lnum, pos), line)
 
-        else:                                  # continued statement
-            if not line:
-                raise TokenError("EOF in multi-line statement", (lnum, 0))
+        elif line:
             continued = 0
 
+        else:
+            raise TokenError("EOF in multi-line statement", (lnum, 0))
         while pos < max:
-            pseudomatch = pseudoprog.match(line, pos)
-            if pseudomatch:                                # scan for tokens
+            if pseudomatch := pseudoprog.match(line, pos):
                 start, end = pseudomatch.span(1)
                 spos, epos, pos = (lnum, start), (lnum, end), end
                 token, initial = line[start:end], line[start]
@@ -433,8 +482,7 @@ def generate_tokens(readline):
                     yield (COMMENT, token, spos, epos, line)
                 elif token in triple_quoted:
                     endprog = endprogs[token]
-                    endmatch = endprog.match(line, pos)
-                    if endmatch:                           # all on one line
+                    if endmatch := endprog.match(line, pos):
                         pos = endmatch.end(0)
                         token = line[start:pos]
                         yield (STRING, token, spos, (lnum, pos), line)
@@ -470,7 +518,7 @@ def generate_tokens(readline):
                            (lnum, pos), (lnum, pos+1), line)
                 pos = pos + 1
 
-    for indent in indents[1:]:                 # pop remaining indent levels
+    for _ in indents[1:]:
         yield (DEDENT, '', (lnum, 0), (lnum, 0), '')
     yield (ENDMARKER, '', (lnum, 0), (lnum, 0), '')
 

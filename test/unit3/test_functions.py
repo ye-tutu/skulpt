@@ -30,13 +30,12 @@ class FunctionTests(unittest.TestCase):
     def test_variable_scope(self):
         X = "OK"
         def test():
-            X = 4
-            return(X)
+            return 4
         test()
         self.assertEqual(X, "OK")
         a = 4
         def test2(z):
-            for i in range(0,a):
+            for i in range(a):
                 z += i
             return z
         self.assertEqual(test2(1), 7)
@@ -139,7 +138,7 @@ class FunctionTests(unittest.TestCase):
         self.assertEqual([str(B(z=3,x=1,y=2)), str(B(z=3,y=2,x=1)), str(B(y=2,z=3,x=1)), str(B(y=2,x=1,z=3))], ['(1, 2, 3)', '(1, 2, 3)', '(1, 2, 3)', '(1, 2, 3)'])
         class MyClass:
             def my_method(self, mandatory_arg, x=0, y=0, **more_args):
-                return ["Hello! x = " + str(x), "Hello! bla = " + str(more_args['bla'])]
+                return [f"Hello! x = {str(x)}", "Hello! bla = " + str(more_args['bla'])]
 
             def my_method2(self):
                 return self.my_method("hi", y=2, bla='from method2')
@@ -197,15 +196,13 @@ class FunctionTests(unittest.TestCase):
             return kw
         self.assertEqual(f(a=4, b=5), {'a': 4, 'b': 5})
         def f(a, b, **c):
-            sortc = [(x,y) for x,y in c.items()]
-            sortc.sort()
+            sortc = sorted(c.items())
             return (a, b, sortc)
         self.assertEqual(f(1, 2, d=4, e=5),(1, 2, [('d', 4), ('e', 5)]))
         self.assertEqual(f(1, b=4, e=5), (1, 4, [('e', 5)]))
         self.assertEqual(f(a=1, b=4, e=5, f=6, g=7), (1, 4, [('e', 5), ('f', 6), ('g', 7)]))
         def f(a,b,c=10,d=20,*e,**f):
-            sortf = [(x,y) for x,y in f.items()]
-            sortf.sort()
+            sortf = sorted(f.items())
             return (a,b,c,d,e,sortf)
         self.assertEqual(f(1,2), (1, 2, 10, 20, (), []))
         self.assertEqual(f(1,2,3), (1, 2, 3, 20, (), []))
@@ -229,7 +226,7 @@ class FunctionTests(unittest.TestCase):
 
     def test_linebreak(self):
         def test():
-            x = "OK"; return x
+            return "OK"
         self.assertEqual(test(), "OK")
 
     def test_nested_funcs(self):
@@ -282,10 +279,7 @@ class FunctionTests(unittest.TestCase):
 
     def test_iter_input(self):
         def f(iter):
-            a = []
-            for v in iter:
-                a.append(v)
-            return a
+            return list(iter)
         self.assertEqual(f(x*y for x in range(10) for y in range(x)), [0, 0, 2, 0, 3, 6, 0, 4, 8, 12, 0, 5, 10, 15, 20, 0, 6, 12, 18, 24, 30, 0, 7, 14, 21, 28, 35, 42, 0, 8, 16, 24, 32, 40, 48, 56, 0, 9, 18, 27, 36, 45, 54, 63, 72])     
 
     def test_docstring(self):
@@ -318,9 +312,9 @@ class FunctionTests(unittest.TestCase):
     def test_send(self):
         z = []
         def mygen(upto):
-           for i in range(0, upto):
-               z.append(i)
-               got = yield i
+            for i in range(upto):
+                z.append(i)
+                got = yield i
         handle = mygen(3)
         first = True
         a = []
@@ -428,7 +422,7 @@ class FunctionTests(unittest.TestCase):
             def test(self):
                 return method_and_var
             def actual_global(self):
-                return str("global")
+                return "global"
             def str(self):
                 return str(self)
 

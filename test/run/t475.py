@@ -16,7 +16,7 @@ class Squares:
         if not 0 <= i < self.max: raise IndexError
         n = len(self.sofar)
         while n <= i:
-            self.sofar.append(n*n)
+            self.sofar.append(n**2)
             n += 1
         return self.sofar[i]
 

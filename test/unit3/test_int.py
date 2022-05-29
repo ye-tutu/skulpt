@@ -30,7 +30,7 @@ class IntSubclass(int):
 class IntTestCases(unittest.TestCase):
 
     def test_basic(self):
-        self.assertEqual(int(314), 314)
+        self.assertEqual(314, 314)
         self.assertEqual(int(3.14), 3)
         # Check that conversion from float truncates towards zero
         self.assertEqual(int(-3.14), -3)
@@ -216,9 +216,8 @@ class IntTestCases(unittest.TestCase):
 
     def test_underscores(self):
         for lit in VALID_UNDERSCORE_LITERALS:
-            if any(ch in lit for ch in '.eEjJ'):
-                continue
-            self.assertEqual(int(lit, 0), int(lit.replace('_', ''), 0))
+            if all(ch not in lit for ch in '.eEjJ'):
+                self.assertEqual(int(lit, 0), int(lit.replace('_', ''), 0))
 
         for lit in INVALID_UNDERSCORE_LITERALS:
             if lit in ('0_7', '09_99'):  # octals are not recognized here

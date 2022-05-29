@@ -21,9 +21,7 @@ class BaseTestCase(unittest.TestCase):
 
     def show(self, textin):
         if isinstance(textin, list):
-            result = []
-            for i in range(len(textin)):
-                result.append("  %d: %r" % (i, textin[i]))
+            result = ["  %d: %r" % (i, textin[i]) for i in range(len(textin))]
             result = "\n".join(result) if result else "  no lines"
         elif isinstance(textin, str):
             result = "  %s\n" % repr(textin)

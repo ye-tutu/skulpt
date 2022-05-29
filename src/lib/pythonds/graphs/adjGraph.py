@@ -21,10 +21,7 @@ class Graph:
         return newVertex
     
     def getVertex(self,n):
-        if n in self.vertices:
-            return self.vertices[n]
-        else:
-            return None
+        return self.vertices[n] if n in self.vertices else None
 
     def __contains__(self,n):
         return n in self.vertices
@@ -95,7 +92,12 @@ class Vertex:
         return self.connectedTo[nbr]
                 
     def __str__(self):
-        return str(self.id) + ":color " + self.color + ":disc " + str(self.disc) + ":fin " + str(self.fin) + ":dist " + str(self.dist) + ":pred \n\t[" + str(self.pred)+ "]\n"
+        return (
+            f"{str(self.id)}:color {self.color}:disc {str(self.disc)}:fin {str(self.fin)}:dist {str(self.dist)}"
+            + ":pred \n\t["
+            + str(self.pred)
+            + "]\n"
+        )
     
     def getId(self):
         return self.id

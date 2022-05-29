@@ -19,8 +19,10 @@ class BuiltinInheritance(unittest.TestCase):
     def check_magic_methods(self, obj, isnum=False, isseq=False):
         def check_methods(methods):
             for method in methods:
-                self.assertTrue(hasattr(obj, method),
-                                "Expected " + str(type(obj)) + " to have method '" + method + "'")
+                self.assertTrue(
+                    hasattr(obj, method),
+                    f"Expected {str(type(obj))}" + " to have method '" + method + "'",
+                )
 
         self.assertIsInstance(obj, object)
 
@@ -58,7 +60,7 @@ class BuiltinInheritance(unittest.TestCase):
         self.check_magic_methods({1:2, 3:4})                        # dict
         self.check_magic_methods(enumerate([1, 2, 3, 4]))           # enumerate
         self.check_magic_methods(open("skulpt.py"))                 # file
-        self.check_magic_methods(set([1, 2, 3, 4]))                 # set
+        self.check_magic_methods({1, 2, 3, 4})
         self.check_magic_methods(slice(1, 2))                       # slice
 
 

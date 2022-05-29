@@ -66,7 +66,7 @@ class StructSeqTest(unittest.TestCase):
         self.assertTrue(t1 <= t2)
         self.assertTrue(not (t1 > t2))
         self.assertTrue(t1 >= t2)
-        self.assertTrue(not (t1 != t2))
+        self.assertTrue(t1 == t2)
 
     def _test_fields(self):
         t = time.gmtime()

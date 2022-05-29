@@ -10,14 +10,14 @@ class TupleTest(seq_tests.CommonTest):
         t0_3 = (0, 1, 2, 3)
         t0_3_bis = tuple(t0_3)
         self.assert_(t0_3 is t0_3_bis)
-        self.assertEqual(tuple([]), ())
-        self.assertEqual(tuple([0, 1, 2, 3]), (0, 1, 2, 3))
+        self.assertEqual((), ())
+        self.assertEqual((0, 1, 2, 3), (0, 1, 2, 3))
         self.assertEqual(tuple(''), ())
         self.assertEqual(tuple('spam'), ('s', 'p', 'a', 'm'))
 
     def test_truth(self):
         super(TupleTest, self).test_truth()
-        self.assert_(not ())
+        self.assert_(not False)
         self.assert_((42, ))
 
     def test_len(self):
@@ -43,8 +43,7 @@ class TupleTest(seq_tests.CommonTest):
     def test_tupleresizebug(self):
         # Check that a specific bug in _PyTuple_Resize() is squashed.
         def f():
-            for i in range(1000):
-                yield i
+            yield from range(1000)
         self.assertEqual(list(tuple(f())), range(1000))
 
     def test_hash(self):

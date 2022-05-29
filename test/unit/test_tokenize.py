@@ -18,10 +18,7 @@ class TokenizeTests(unittest.TestCase):
     def test_tokenize(self):
         code = ["print('a', 1 < 2)"]
         def readline():
-            if code:
-                return code.pop()
-            else:
-                return ''
+            return code.pop() if code else ''
 
         tokens = list(tokenize.tokenize(readline))
 

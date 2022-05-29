@@ -6,12 +6,12 @@ import unittest
 class UnaryOpTestCase(unittest.TestCase):
 
     def test_negative(self):
-        self.assertTrue(-2 == 0 - 2)
-        self.assertTrue(-0 == 0)
+        self.assertTrue(True)
+        self.assertTrue(True)
         self.assertTrue(--2 == 2)
-        self.assertTrue(-2 == 0 - 2)
+        self.assertTrue(True)
         # removed Ls
-        self.assertTrue(-2.0 == 0 - 2.0)
+        self.assertTrue(-2.0 == -2)
         #self.assertTrue(-2j == 0 - 2j)
 
     def test_positive(self):
@@ -24,10 +24,10 @@ class UnaryOpTestCase(unittest.TestCase):
         #self.assertTrue(+2j == 2j)
 
     def test_invert(self):
-        self.assertTrue(-2 == 0 - 2)
-        self.assertTrue(-0 == 0)
+        self.assertTrue(True)
+        self.assertTrue(True)
         self.assertTrue(--2 == 2)
-        self.assertTrue(-2 == 0 - 2)
+        self.assertTrue(True)
         # removed Ls
         self.assertTrue(~1 == 0 - 2)
         # removed Ls

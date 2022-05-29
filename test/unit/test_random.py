@@ -32,7 +32,7 @@ class Test_Distributions(unittest.TestCase):
                                                     ]:
             #g.random = x[:].pop
             y = []
-            for i in xrange(len(x)):
+            for _ in xrange(len(x)):
                 try:
                     y.append(variate(*args))
                 except IndexError:
@@ -50,7 +50,7 @@ class Test_Distributions(unittest.TestCase):
         N = 1000
         population = [-2, -1, 0, 1, 2]
         hist = {}
-        for i in xrange(N):
+        for _ in xrange(N):
             sampled = random.sample(population, 2)
             key = ','.join(str(x) for x in sampled)
             hist[key] = hist.get(key, 0) + 1
@@ -68,10 +68,10 @@ class Test_Distributions(unittest.TestCase):
         for a in population:
             for b in population:
                 if a != b:
-                    key = '%s,%s' % (a, b)
+                    key = f'{a},{b}'
                     observed = hist.get(key, 0)
-                    self.assertLess(low, observed, 'Sample %s' % key)
-                    self.assertGreater(high, observed, 'Sample %s' % key)
+                    self.assertLess(low, observed, f'Sample {key}')
+                    self.assertGreater(high, observed, f'Sample {key}')
 
     def test_sample_tuple(self):
         population = (1, 2, 3, 4)

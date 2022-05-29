@@ -40,9 +40,8 @@ class IterInheritsTestCase(unittest.TestCase):
             def next(self): # Python 3: def __next__(self)
                 if self.current > self.high:
                     raise StopIteration
-                else:
-                    self.current += 1
-                    return self.current - 1
+                self.current += 1
+                return self.current - 1
 
         l = list(Counter(1,12))
         self.assertTrue(5 in l)
@@ -278,7 +277,7 @@ class IterInheritsTestCase(unittest.TestCase):
         self.assertEqual(list.__getitem__(l, 0), 42)
         self.assertEqual(list.__len__(l), 1)
 
-        l2 = [i for i in list.__iter__(l)]
+        l2 = list(list.__iter__(l))
         self.assertEqual(l2, [42])
 
         self.assertTrue(list.__contains__(l, 42))

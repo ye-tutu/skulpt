@@ -20,10 +20,7 @@ def get_c_type(name):
     # # XXX ack!  need to figure out where Id is useful and where string
     # if isinstance(name, asdl.TokenId):
     #     name = name.value
-    if name in asdl.builtin_types:
-        return name
-    else:
-        return "%s_ty" % name
+    return name if name in asdl.builtin_types else f"{name}_ty"
 
 def reflow_lines(s, depth):
     """Reflow the line s indented depth tabs.
@@ -63,8 +60,7 @@ def reflow_lines(s, depth):
                     size -= j
                     padding = " " * j
         cur = cur[i+1:]
-    else:
-        lines.append(padding + cur)
+    lines.append(padding + cur)
     return lines
 
 def is_simple(sum):
@@ -73,10 +69,7 @@ def is_simple(sum):
     A sum is simple if its types have no fields, e.g.
     unaryop = Invert | Not | UAdd | USub
     """
-    for t in sum.types:
-        if t.fields:
-            return False
-    return True
+    return not any(t.fields for t in sum.types)
 
 
 class EmitVisitor(asdl.VisitorBase):
@@ -88,10 +81,7 @@ class EmitVisitor(asdl.VisitorBase):
 
     def emit(self, s, depth, reflow=1):
         # XXX reflow long lines?
-        if reflow:
-            lines = reflow_lines(s, depth)
-        else:
-            lines = [s]
+        lines = reflow_lines(s, depth) if reflow else [s]
         for line in lines:
             line = (" " * TABSIZE * depth) + line + "\n"
             self.file.write(line)
@@ -110,7 +100,7 @@ class TypeDefVisitor(EmitVisitor):
             self.simple_sum(sum, name, depth)
 
     def simple_sum(self, sum, name, depth):
-        self.emit("/* ----- %s ----- */" % name, depth);
+        self.emit(f"/* ----- {name} ----- */", depth);
         for i in range(len(sum.types)):
             self.emit("/** @constructor */", depth);
             type = sum.types[i]
@@ -165,9 +155,7 @@ class PrototypeVisitor(EmitVisitor):
         self.visit(type.value, type.name)
 
     def visitSum(self, sum, name):
-        if is_simple(sum):
-            pass # XXX
-        else:
+        if not is_simple(sum):
             for t in sum.types:
                 self.visit(t, name, sum.attributes)
 
@@ -189,10 +177,7 @@ class PrototypeVisitor(EmitVisitor):
                 name = f.name
             # XXX should extend get_c_type() to handle this
             if f.seq:
-                if f.type in ('cmpop',):
-                    ctype = "asdl_int_seq *"
-                else:
-                    ctype = "asdl_seq *"
+                ctype = "asdl_int_seq *" if f.type in ('cmpop',) else "asdl_seq *"
             else:
                 ctype = get_c_type(f.type)
             args.append((ctype, name, f.opt or f.seq))
@@ -207,17 +192,15 @@ class PrototypeVisitor(EmitVisitor):
     def emit_function(self, name, ctype, args, attrs, union=1):
         args = args + attrs
         if args:
-            argstr = ", ".join(["%s %s" % (atype, aname)
-                                for atype, aname, opt in args])
+            argstr = ", ".join([f"{atype} {aname}" for atype, aname, opt in args])
             argstr += ", PyArena *arena"
         else:
             argstr = "PyArena *arena"
         margs = "a0"
         for i in range(1, len(args)+1):
             margs += ", a%d" % i
-        self.emit("#define %s(%s) _Py_%s(%s)" % (name, margs, name, margs), 0,
-                reflow = 0)
-        self.emit("%s _Py_%s(%s);" % (ctype, name, argstr), 0)
+        self.emit(f"#define {name}({margs}) _Py_{name}({margs})", 0, reflow = 0)
+        self.emit(f"{ctype} _Py_{name}({argstr});", 0)
 
     def visitProduct(self, prod, name):
         self.emit_function(name, get_c_type(name),
@@ -297,10 +280,8 @@ class FieldNamesVisitor(PickleVisitor):
     def visitProduct(self, prod, name):
         if prod.fields:
             self.emit('Sk.astnodes.%s.prototype._astname = "%s";' % (name, cleanName(name)), 0)
-            self.emit("Sk.astnodes.%s.prototype._fields = [" % name,0)
-            c = 0
-            for f in prod.fields:
-                c += 1
+            self.emit(f"Sk.astnodes.{name}.prototype._fields = [", 0)
+            for c, f in enumerate(prod.fields, start=1):
                 self.emit('"%s", function(n) { return n.%s; }%s' % (f.name, f.name, "," if c < len(prod.fields) else ""), 1)
             self.emit("];", 0)
 
@@ -308,18 +289,16 @@ class FieldNamesVisitor(PickleVisitor):
         if is_simple(sum):
             for t in sum.types:
                 self.emit('Sk.astnodes.%s.prototype._astname = "%s";' % (t.name, cleanName(t.name)), 0)
-                self.emit('Sk.astnodes.%s.prototype._isenum = true;' % (t.name), 0)
+                self.emit(f'Sk.astnodes.{t.name}.prototype._isenum = true;', 0)
         else:
             for t in sum.types:
                 self.visitConstructor(t, name)
 
     def visitConstructor(self, cons, name):
         self.emit('Sk.astnodes.%s.prototype._astname = "%s";' % (cons.name, cleanName(cons.name)), 0)
-        self.emit("Sk.astnodes.%s.prototype._fields = [" % cons.name, 0)
+        self.emit(f"Sk.astnodes.{cons.name}.prototype._fields = [", 0)
         if cons.fields:
-            c = 0
-            for t in cons.fields:
-                c += 1
+            for c, t in enumerate(cons.fields, start=1):
                 self.emit('"%s", function(n) { return n.%s; }%s' % (t.name, t.name, "," if c < len(cons.fields) else ""), 1)
         self.emit("];",0)
 
@@ -336,10 +315,7 @@ def find_sequence(fields, doing_specialization):
     return False
 
 def has_sequence(types, doing_specialization):
-    for t in types:
-        if find_sequence(t.fields, doing_specialization):
-            return True
-    return False
+    return any(find_sequence(t.fields, doing_specialization) for t in types)
 
 
 class ChainOfVisitors:
@@ -362,30 +338,27 @@ def main(asdlfile, outputfile):
     if not asdl.check(mod):
         sys.exit(1)
 
-    f = open(outputfile, "wb")
+    with open(outputfile, "wb") as f:
+        f.write(auto_gen_msg)
+        f.write("/* Object that holds all nodes */\n");
+        f.write("Sk.astnodes = {};\n\n");
 
-    f.write(auto_gen_msg)
-    f.write("/* Object that holds all nodes */\n");
-    f.write("Sk.astnodes = {};\n\n");
-    
-    c = ChainOfVisitors(TypeDefVisitor(f),
-                        )
-    c.visit(mod)
+        c = ChainOfVisitors(TypeDefVisitor(f),
+                            )
+        c.visit(mod)
 
-    f.write("\n"*5)
-    f.write("/* ---------------------- */\n")
-    f.write("/* constructors for nodes */\n")
-    f.write("/* ---------------------- */\n")
-    f.write("\n"*5)
-    v = ChainOfVisitors(
-        FunctionVisitor(f),
-        FieldNamesVisitor(f),
-        )
-    v.visit(mod)
+        f.write("\n"*5)
+        f.write("/* ---------------------- */\n")
+        f.write("/* constructors for nodes */\n")
+        f.write("/* ---------------------- */\n")
+        f.write("\n"*5)
+        v = ChainOfVisitors(
+            FunctionVisitor(f),
+            FieldNamesVisitor(f),
+            )
+        v.visit(mod)
 
-    f.write('Sk.exportSymbol("Sk.astnodes", Sk.astnodes);\n');
-    
-    f.close()
+        f.write('Sk.exportSymbol("Sk.astnodes", Sk.astnodes);\n');
 
 if __name__ == "__main__":
     import sys

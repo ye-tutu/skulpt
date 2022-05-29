@@ -106,7 +106,7 @@ class RangeTest(unittest.TestCase):
 
         # Now test range() with longs
         self.assertEqual(list(range(-2**100)), [])
-        self.assertEqual(list(range(0, -2**100)), [])
+        self.assertEqual(list(range(-2**100)), [])
         self.assertEqual(list(range(0, 2**100, -1)), [])
         self.assertEqual(list(range(0, 2**100, -1)), [])
 
@@ -187,7 +187,7 @@ class RangeTest(unittest.TestCase):
         self.assertRaises(TypeError, range, 1, 2, 3, 4)
         self.assertRaises(ValueError, range, 1, 2, 0)
         a = int(10 * sys.maxsize)
-        self.assertRaises(ValueError, range, a, a + 1, int(0))
+        self.assertRaises(ValueError, range, a, a + 1, 0)
         self.assertRaises(TypeError, range, 1., 1., 1.)
         self.assertRaises(TypeError, range, 1e100, 1e101, 1e101)
         self.assertRaises(TypeError, range, 0, "spam")
@@ -348,7 +348,7 @@ class RangeTest(unittest.TestCase):
         self.assertNotIn(0, r)
         self.assertNotIn(1, r)
 
-        r = range(0, -10)
+        r = range(-10)
         self.assertNotIn(0, r)
         self.assertNotIn(-1, r)
         self.assertNotIn(1, r)
@@ -490,10 +490,20 @@ class RangeTest(unittest.TestCase):
                     r[i:j:k]
 
     def test_comparison(self):
-        test_ranges = [range(0), range(0, -1), range(1, 1, 3),
-                       range(1), range(5, 6), range(5, 6, 2),
-                       range(5, 7, 2), range(2), range(0, 4, 2),
-                       range(0, 5, 2), range(0, 6, 2)]
+        test_ranges = [
+            range(0),
+            range(-1),
+            range(1, 1, 3),
+            range(1),
+            range(5, 6),
+            range(5, 6, 2),
+            range(5, 7, 2),
+            range(2),
+            range(0, 4, 2),
+            range(0, 5, 2),
+            range(0, 6, 2),
+        ]
+
         test_tuples = list(map(tuple, test_ranges))
 
         # Check that equality of ranges matches equality of the corresponding
@@ -537,7 +547,7 @@ class RangeTest(unittest.TestCase):
         self.assert_attrs(range(0), 0, 0, 1)
         self.assert_attrs(range(10), 0, 10, 1)
         self.assert_attrs(range(-10), 0, -10, 1)
-        self.assert_attrs(range(0, 10, 1), 0, 10, 1)
+        self.assert_attrs(range(10), 0, 10, 1)
         self.assert_attrs(range(0, 10, 3), 0, 10, 3)
         self.assert_attrs(range(10, 0, -1), 10, 0, -1)
         self.assert_attrs(range(10, 0, -3), 10, 0, -3)

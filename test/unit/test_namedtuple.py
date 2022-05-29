@@ -216,8 +216,13 @@ class TestNamedTuple(unittest.TestCase):
 
         n = 5000
         import string, random
-        names = list(set(''.join([random.choice(string.ascii_letters)
-                                  for j in range(10)]) for i in range(n)))
+        names = list(
+            {
+                ''.join([random.choice(string.ascii_letters) for _ in range(10)])
+                for _ in range(n)
+            }
+        )
+
         n = len(names)
         Big = namedtuple('Big', names)
         b = Big(*range(n))

@@ -20,12 +20,11 @@ class ComplexTest(unittest.TestCase):
             else:
                 unittest.TestCase.assertAlmostEqual(self, a.real, b)
                 unittest.TestCase.assertAlmostEqual(self, a.imag, 0.)
+        elif isinstance(b, complex):
+            unittest.TestCase.assertAlmostEqual(self, a, b.real)
+            unittest.TestCase.assertAlmostEqual(self, 0., b.imag)
         else:
-            if isinstance(b, complex):
-                unittest.TestCase.assertAlmostEqual(self, a, b.real)
-                unittest.TestCase.assertAlmostEqual(self, 0., b.imag)
-            else:
-                unittest.TestCase.assertAlmostEqual(self, a, b)
+            unittest.TestCase.assertAlmostEqual(self, a, b)
 
     def assertCloseAbs(self, x, y, eps=1e-9):
         """Return true iff floats x and y "are close"."""
@@ -94,7 +93,7 @@ class ComplexTest(unittest.TestCase):
         self.check_div(complex(1e-200, 1e-200), 1+0j)
 
         # Just for fun.
-        for i in range(100):
+        for _ in range(100):
             self.check_div(complex(random(), random()),
                            complex(random(), random()))
 
@@ -205,7 +204,7 @@ class ComplexTest(unittest.TestCase):
         self.assertRaises(ValueError, pow, a, b, 0)
 
     def test_boolcontext(self):
-        for i in range(100):
+        for _ in range(100):
             self.assertTrue(complex(random() + 1e-6, random() + 1e-6))
         self.assertTrue(not complex(0.0, 0.0))
 
@@ -387,13 +386,13 @@ class ComplexTest(unittest.TestCase):
     def test_underscores(self):
         # check underscores
         for lit in VALID_UNDERSCORE_LITERALS:
-            if not any(ch in lit for ch in 'xXoObB'):
+            if all(ch not in lit for ch in 'xXoObB'):
                 # self.assertEqual(complex(lit), eval(lit))
                 self.assertEqual(complex(lit), complex(lit.replace('_', '')))
         for lit in INVALID_UNDERSCORE_LITERALS:
             if lit in ('0_7', '09_99'):  # octals are not recognized here
                 continue
-            if not any(ch in lit for ch in 'xXoObB'):
+            if all(ch not in lit for ch in 'xXoObB'):
                 self.assertRaises(ValueError, complex, lit)
 
     def test_hash(self):

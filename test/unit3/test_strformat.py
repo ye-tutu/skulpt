@@ -5,7 +5,7 @@ import unittest
 class string_format(unittest.TestCase):
     def test_simple_position(self):
         self.assertEqual('a, b, c', '{0}, {1}, {2}'.format('a', 'b', 'c'))
-        self.assertEqual('a, b, c', '{}, {}, {}'.format('a', 'b', 'c'))
+        self.assertEqual('a, b, c', 'a, b, c')
         self.assertEqual('c, b, a',  '{2}, {1}, {0}'.format('a', 'b', 'c'))
         self.assertEqual('c, b, a', '{2}, {1}, {0}'.format(*'abc'))
         self.assertEqual('abracadabra', '{0}{1}{0}'.format('abra', 'cad'))
@@ -63,7 +63,7 @@ class string_format(unittest.TestCase):
         self.assertEqual('3.140000; -3.140000',  '{:-f}; {:-f}'.format(3.14, -3.14))
 
     def test_zeroes(self):
-        self.assertEqual('3.14', "{}".format(3.14))
+        self.assertEqual('3.14', '3.14')
         self.assertEqual('3.1', "{:.2}".format(3.14))
         self.assertEqual('3.14', "{:.5}".format(3.14))
         self.assertEqual('3.14', "{:.5g}".format(3.14))

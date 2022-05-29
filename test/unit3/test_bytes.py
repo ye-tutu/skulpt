@@ -68,12 +68,10 @@ class BytesTests(unittest.TestCase):
                 self.high = high
 
             def __next__(self):
-                #res = self.i
                 if self.current > self.high:
                     raise StopIteration
-                else:
-                    self.current += 1
-                    return self.current - 1
+                self.current += 1
+                return self.current - 1
 
             def __iter__(self):
                 return self
@@ -143,10 +141,10 @@ class BytesTests(unittest.TestCase):
         a = bytes([1, 2, 3])
         b = bytes([1, 2, 3])
         c = bytes([4, 5, 6])
-        self.assertTrue(a == a)
+        self.assertTrue(True)
         self.assertTrue(a == b)
         self.assertFalse(a == c)
-        self.assertFalse(a != a)
+        self.assertFalse(False)
         self.assertFalse(a != b)
         self.assertTrue(a != c)
         self.assertTrue(bytes([97, 98, 122]) == bytes("abz", 'ascii'))
@@ -157,7 +155,7 @@ class BytesTests(unittest.TestCase):
     def test_contains(self):
         b = b"abc"
         self.assertIn(ord('a'), b)
-        self.assertIn(int(ord('a')), b)
+        self.assertIn(ord('a'), b)
         self.assertNotIn(200, b)
         self.assertRaises(ValueError, lambda: 300 in b)
         self.assertRaises(ValueError, lambda: -1 in b)
@@ -178,15 +176,15 @@ class BytesTests(unittest.TestCase):
         self.assertNotIn(bytes(b"abd"), b)
 
     def test_compare_bytes_to_bytearray(self):
-        self.assertEqual(b"abc" == bytes(b"abc"), True)
-        self.assertEqual(b"ab" != bytes(b"abc"), True)
+        self.assertEqual(bytes(b"abc") == b"abc", True)
+        self.assertEqual(bytes(b"abc") != b"ab", True)
         self.assertEqual(b"ab" <= bytes(b"abc"), True)
         self.assertEqual(b"ab" < bytes(b"abc"), True)
         self.assertEqual(b"abc" >= bytes(b"ab"), True)
         self.assertEqual(b"abc" > bytes(b"ab"), True)
 
-        self.assertEqual(b"abc" != bytes(b"abc"), False)
-        self.assertEqual(b"ab" == bytes(b"abc"), False)
+        self.assertEqual(bytes(b"abc") != b"abc", False)
+        self.assertEqual(bytes(b"abc") == b"ab", False)
         self.assertEqual(b"ab" > bytes(b"abc"), False)
         self.assertEqual(b"ab" >= bytes(b"abc"), False)
         self.assertEqual(b"abc" < bytes(b"ab"), False)
@@ -293,12 +291,10 @@ class BytesTests(unittest.TestCase):
                 self.high = high
 
             def __next__(self):
-                #res = self.i
                 if self.current > self.high:
                     raise StopIteration
-                else:
-                    self.current += 1
-                    return self.current - 1
+                self.current += 1
+                return self.current - 1
 
             def __iter__(self):
                 return self
@@ -337,7 +333,7 @@ class BytesTests(unittest.TestCase):
     def test_mod(self):
         b = bytes(b'hello, %b!')
         orig = b
-        b = b % b'world'
+        b %= b'world'
         self.assertEqual(b, b'hello, world!')
         self.assertEqual(orig, b'hello, %b!')
         self.assertFalse(b is orig)
@@ -347,7 +343,7 @@ class BytesTests(unittest.TestCase):
         self.assertIs(type(a), bytes)
         # issue 29714
         b = bytes(b'hello,\x00%b!')
-        b = b % b'world'
+        b %= b'world'
         self.assertEqual(b, b'hello,\x00world!')
         self.assertIs(type(b), bytes)
 
@@ -405,7 +401,7 @@ class BytesTests(unittest.TestCase):
         self.assertEqual(a[0:-2], a[0:1])
 
         def foo(x):
-            return a[0:x]
+            return a[:x]
         def foo2(x):
             return a[x]
         self.assertRaises(TypeError, foo, "a")

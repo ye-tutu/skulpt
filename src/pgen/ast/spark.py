@@ -27,8 +27,7 @@ import string
 def _namelist(instance):
     namelist, namedict, classlist = [], {}, [instance.__class__]
     for c in classlist:
-        for b in c.__bases__:
-            classlist.append(b)
+        classlist.extend(iter(c.__bases__))
         for name in c.__dict__.keys():
             if not namedict.has_key(name):
                 namelist.append(name)
@@ -42,18 +41,18 @@ class GenericScanner:
 
         self.index2func = {}
         for name, number in self.re.groupindex.items():
-            self.index2func[number-1] = getattr(self, 't_' + name)
+            self.index2func[number-1] = getattr(self, f't_{name}')
 
     def makeRE(self, name):
         doc = getattr(self, name).__doc__
-        rv = '(?P<%s>%s)' % (name[2:], doc)
-        return rv
+        return f'(?P<{name[2:]}>{doc})'
 
     def reflect(self):
-        rv = []
-        for name in _namelist(self):
-            if name[:2] == 't_' and name != 't_default':
-                rv.append(self.makeRE(name))
+        rv = [
+            self.makeRE(name)
+            for name in _namelist(self)
+            if name[:2] == 't_' and name != 't_default'
+        ]
 
         rv.append(self.makeRE('t_default'))
         return string.join(rv, '|')
@@ -173,10 +172,7 @@ class GenericParser:
         fn = func
         rules = string.split(doc)
 
-        index = []
-        for i in range(len(rules)):
-            if rules[i] == '::=':
-                index.append(i-1)
+        index = [i-1 for i in range(len(rules)) if rules[i] == '::=']
         index.append(len(rules))
 
         for i in range(len(index)-1):
@@ -203,7 +199,7 @@ class GenericParser:
                 self.addRule(doc, func)
 
     def augment(self, start):
-        rule = '%s ::= %s %s' % (self._START, self._BOF, start)
+        rule = f'{self._START} ::= {self._BOF} {start}'
         self.addRule(rule, lambda args: args[1], 0)
 
     def computeNull(self):
@@ -260,9 +256,7 @@ class GenericParser:
     def makeNewRules(self):
         worklist = []
         for rulelist in self.rules.values():
-            for rule in rulelist:
-                worklist.append((rule, 0, 1, rule))
-
+            worklist.extend((rule, 0, 1, rule) for rule in rulelist)
         for rule, i, candidate, oldrule in worklist:
             lhs, rhs = rule
             n = len(rhs)
@@ -281,15 +275,14 @@ class GenericParser:
                                  candidate, oldrule))
                 candidate = 0
                 i = i + 1
+            if candidate:
+                lhs = self._NULLABLE+lhs
+                rule = (lhs, rhs)
+            if self.newrules.has_key(lhs):
+                self.newrules[lhs].append(rule)
             else:
-                if candidate:
-                    lhs = self._NULLABLE+lhs
-                    rule = (lhs, rhs)
-                if self.newrules.has_key(lhs):
-                    self.newrules[lhs].append(rule)
-                else:
-                    self.newrules[lhs] = [ rule ]
-                self.new2old[rule] = oldrule
+                self.newrules[lhs] = [ rule ]
+            self.new2old[rule] = oldrule
 
     def typestring(self, token):
         return None
@@ -339,7 +332,7 @@ class GenericParser:
         #  For symbols in G_e only.  If we weren't supporting 1.5,
         #  could just use sym.startswith().
         #
-        return self._NULLABLE == sym[0:len(self._NULLABLE)]
+        return self._NULLABLE == sym[:len(self._NULLABLE)]
 
     def skip(self, (lhs, rhs), pos=0):
         n = len(rhs)
@@ -388,11 +381,7 @@ class GenericParser:
 
                 nextSym = rhs[pos]
                 key = (X.stateno, nextSym)
-                if not rules.has_key(nextSym):
-                    if not edges.has_key(key):
-                        edges[key] = None
-                        X.T.append(nextSym)
-                else:
+                if rules.has_key(nextSym):
                     edges[key] = None
                     if not predicted.has_key(nextSym):
                         predicted[nextSym] = 1
@@ -400,6 +389,9 @@ class GenericParser:
                             ppos = self.skip(prule)
                             new = (prule, ppos)
                             NK.items.append(new)
+                elif not edges.has_key(key):
+                    edges[key] = None
+                    X.T.append(nextSym)
             #
             #  Problem: we know K needs generating, but we
             #  don't yet know about NK.  Can't commit anything
@@ -451,11 +443,7 @@ class GenericParser:
         return [self.goto(state, t)]
 
     def gotoST(self, state, st):
-        rv = []
-        for t in self.states[state].T:
-            if st == t:
-                rv.append(self.goto(state, t))
-        return rv
+        return [self.goto(state, t) for t in self.states[state].T if st == t]
 
     def add(self, set, item, i=None, predecessor=None, causal=None):
         if predecessor is None:
@@ -472,11 +460,7 @@ class GenericParser:
         cur, next = sets[i], sets[i+1]
 
         ttype = token is not None and self.typestring(token) or None
-        if ttype is not None:
-            fn, arg = self.gotoT, ttype
-        else:
-            fn, arg = self.gotoST, token
-
+        fn, arg = (self.gotoT, ttype) if ttype is not None else (self.gotoST, token)
         for item in cur:
             ptr = (item, i)
             state, parent = item
@@ -635,8 +619,7 @@ class GenericParser:
                     attr[i] = tokens[k-1]
                     key = (item, k)
                     item, k = self.predecessor(key, None)
-            #elif self.isnullable(sym):
-            elif self._NULLABLE == sym[0:len(self._NULLABLE)]:
+            elif self._NULLABLE == sym[: len(self._NULLABLE)]:
                 attr[i] = self.deriveEpsilon(sym)
             else:
                 key = (item, k)
@@ -735,7 +718,7 @@ class GenericASTTraversal:
             node = self.ast
 
         try:
-            name = 'n_' + self.typestring(node)
+            name = f'n_{self.typestring(node)}'
             if hasattr(self, name):
                 func = getattr(self, name)
                 func(node)
@@ -747,7 +730,7 @@ class GenericASTTraversal:
         for kid in node:
             self.preorder(kid)
 
-        name = name + '_exit'
+        name = f'{name}_exit'
         if hasattr(self, name):
             func = getattr(self, name)
             func(node)
@@ -759,7 +742,7 @@ class GenericASTTraversal:
         for kid in node:
             self.postorder(kid)
 
-        name = 'n_' + self.typestring(node)
+        name = f'n_{self.typestring(node)}'
         if hasattr(self, name):
             func = getattr(self, name)
             func(node)

@@ -121,7 +121,7 @@ class VisitorBase(object):
         klass = obj.__class__
         meth = self.cache.get(klass)
         if meth is None:
-            methname = "visit" + klass.__name__
+            methname = f"visit{klass.__name__}"
             meth = getattr(self, methname, None)
             self.cache[klass] = meth
         if meth:
@@ -159,8 +159,8 @@ class Check(VisitorBase):
         if conflict is None:
             self.cons[key] = name
         else:
-            print('Redefinition of constructor {}'.format(key))
-            print('Defined in {} and {}'.format(conflict, name))
+            print(f'Redefinition of constructor {key}')
+            print(f'Defined in {conflict} and {name}')
             self.errors += 1
         for f in cons.fields:
             self.visit(f, key)
@@ -184,10 +184,10 @@ def check(mod):
     v.visit(mod)
 
     for t in v.types:
-        if t not in mod.types and not t in builtin_types:
+        if t not in mod.types and t not in builtin_types:
             v.errors += 1
             uses = ", ".join(v.types[t])
-            print('Undefined type {}, used in {}'.format(t, uses))
+            print(f'Undefined type {t}, used in {uses}')
     return not v.errors
 
 # The ASDL parser itself comes next. The only interesting external interface
@@ -238,7 +238,7 @@ def tokenize_asdl(buf):
                 try:
                     op_kind = TokenKind.operator_table[c]
                 except KeyError:
-                    raise ASDLSyntaxError('Invalid operator %s' % c, lineno)
+                    raise ASDLSyntaxError(f'Invalid operator {c}', lineno)
                 yield Token(op_kind, c, lineno)
 
 class ASDLParser:
@@ -264,8 +264,10 @@ class ASDLParser:
             self._advance()
         else:
             raise ASDLSyntaxError(
-                'Expected "module" (found {})'.format(self.cur_token.value),
-                self.cur_token.lineno)
+                f'Expected "module" (found {self.cur_token.value})',
+                self.cur_token.lineno,
+            )
+
         name = self._match(self._id_kinds)
         self._match(TokenKind.LBrace)
         defs = self._parse_definitions()
@@ -285,17 +287,16 @@ class ASDLParser:
         if self.cur_token.kind == TokenKind.LParen:
             # If we see a (, it's a product
             return self._parse_product()
-        else:
-            # Otherwise it's a sum. Look for ConstructorId
-            sumlist = [Constructor(self._match(TokenKind.ConstructorId),
-                                   self._parse_optional_fields())]
-            while self.cur_token.kind  == TokenKind.Pipe:
-                # More constructors
-                self._advance()
-                sumlist.append(Constructor(
-                                self._match(TokenKind.ConstructorId),
-                                self._parse_optional_fields()))
-            return Sum(sumlist, self._parse_optional_attributes())
+        # Otherwise it's a sum. Look for ConstructorId
+        sumlist = [Constructor(self._match(TokenKind.ConstructorId),
+                               self._parse_optional_fields())]
+        while self.cur_token.kind  == TokenKind.Pipe:
+            # More constructors
+            self._advance()
+            sumlist.append(Constructor(
+                            self._match(TokenKind.ConstructorId),
+                            self._parse_optional_fields()))
+        return Sum(sumlist, self._parse_optional_attributes())
 
     def _parse_product(self):
         return Product(self._parse_fields(), self._parse_optional_attributes())
@@ -360,16 +361,17 @@ class ASDLParser:
         * Returns the value of the current token
         * Reads in the next token
         """
-        if (isinstance(kind, tuple) and self.cur_token.kind in kind or
-            self.cur_token.kind == kind
-            ):
-            value = self.cur_token.value
-            self._advance()
-            return value
-        else:
+        if (
+            not isinstance(kind, tuple) or self.cur_token.kind not in kind
+        ) and self.cur_token.kind != kind:
             raise ASDLSyntaxError(
-                'Unmatched {} (found {})'.format(kind, self.cur_token.kind),
-                self.cur_token.lineno)
+                f'Unmatched {kind} (found {self.cur_token.kind})',
+                self.cur_token.lineno,
+            )
+
+        value = self.cur_token.value
+        self._advance()
+        return value
 
     def _at_keyword(self, keyword):
         return (self.cur_token.kind == TokenKind.TypeId and

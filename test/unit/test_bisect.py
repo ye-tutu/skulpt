@@ -155,7 +155,7 @@ class TestBisect:
     def test_random(self, n=25):
         from random import randrange
         for i in range(n):
-            data = [randrange(0, n, 2) for j in range(i)]
+            data = [randrange(0, n, 2) for _ in range(i)]
             data.sort()
             elem = randrange(-1, n+1)
             ip = self.module.bisect_left(data, elem)
@@ -207,12 +207,9 @@ class TestInsort:
     def test_vsBuiltinSort(self, n=500):
         from random import choice
         for insorted in (list(), UserList()):
-            for i in range(n):
+            for _ in range(n):
                 digit = choice("0123456789")
-                if digit in "02468":
-                    f = self.module.insort_left
-                else:
-                    f = self.module.insort_right
+                f = self.module.insort_left if digit in "02468" else self.module.insort_right
                 f(insorted, digit)
             self.assertEqual(sorted(insorted), insorted)
 

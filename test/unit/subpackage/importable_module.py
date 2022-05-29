@@ -2,10 +2,10 @@
 version = "subpackage"
 
 if __package__ != "subpackage":
-    raise Exception("__package__ not set correctly (" + __package__ + ")")
+    raise Exception(f"__package__ not set correctly ({__package__})")
 
 if __name__ != "subpackage.importable_module":
-    raise Exception("__name__ not set correctly (" + __name__ + ")")
+    raise Exception(f"__name__ not set correctly ({__name__})")
 
 from implicit_import import *
 
@@ -23,4 +23,6 @@ if not explicit_load_succeeded:
 from . import explicit_relative_import
 
 if explicit_relative_import.__name__ != "subpackage.explicit_relative_import":
-	raise Exception("__name__ not set correctly for explicit import (%s)" % explicit_import.__name__)
+    raise Exception(
+        f"__name__ not set correctly for explicit import ({explicit_import.__name__})"
+    )

@@ -162,8 +162,8 @@ class ReTests(unittest.TestCase):
         for string in strings:
             self.assertEqual(re.match('a', string).groups(), ())
             self.assertEqual(re.match('(a)', string).groups(), ('a',))
-            self.assertEqual(re.match('(a)', string).group(0), 'a')
-            self.assertEqual(re.match('(a)', string).group(1), 'a')
+            self.assertEqual(re.match('(a)', string)[0], 'a')
+            self.assertEqual(re.match('(a)', string)[1], 'a')
             # Subgroup args not supported in Skulpt
             if include_failing:
                 self.assertEqual(re.match('(a)', string).group(1, 1), ('a', 'a'))
@@ -182,8 +182,8 @@ class ReTests(unittest.TestCase):
         # A single group
         m = re.match('(a)(b)', 'ab')
         self.assertEqual(m.group(), 'ab')
-        self.assertEqual(m.group(0), 'ab')
-        self.assertEqual(m.group(1), 'a')
+        self.assertEqual(m[0], 'ab')
+        self.assertEqual(m[1], 'a')
 
         # Multiple groups not supported in Skulpt
         if include_failing:
@@ -195,14 +195,14 @@ class ReTests(unittest.TestCase):
         self.assertIsNone(re.match(r"^(\w){1,2}$", "abc"))
         self.assertIsNone(re.match(r"^(\w){1,2}?$", "abc"))
 
-        self.assertEqual(re.match(r"^(\w){3}$", "abc").group(1), "c")
-        self.assertEqual(re.match(r"^(\w){1,3}$", "abc").group(1), "c")
-        self.assertEqual(re.match(r"^(\w){1,4}$", "abc").group(1), "c")
-        self.assertEqual(re.match(r"^(\w){3,4}?$", "abc").group(1), "c")
-        self.assertEqual(re.match(r"^(\w){3}?$", "abc").group(1), "c")
-        self.assertEqual(re.match(r"^(\w){1,3}?$", "abc").group(1), "c")
-        self.assertEqual(re.match(r"^(\w){1,4}?$", "abc").group(1), "c")
-        self.assertEqual(re.match(r"^(\w){3,4}?$", "abc").group(1), "c")
+        self.assertEqual(re.match(r"^(\w){3}$", "abc")[1], "c")
+        self.assertEqual(re.match(r"^(\w){1,3}$", "abc")[1], "c")
+        self.assertEqual(re.match(r"^(\w){1,4}$", "abc")[1], "c")
+        self.assertEqual(re.match(r"^(\w){3,4}?$", "abc")[1], "c")
+        self.assertEqual(re.match(r"^(\w){3}?$", "abc")[1], "c")
+        self.assertEqual(re.match(r"^(\w){1,3}?$", "abc")[1], "c")
+        self.assertEqual(re.match(r"^(\w){1,4}?$", "abc")[1], "c")
+        self.assertEqual(re.match(r"^(\w){3,4}?$", "abc")[1], "c")
 
         self.assertIsNone(re.match(r"^x{1}$", "xxx"))
         self.assertIsNone(re.match(r"^x{1}?$", "xxx"))
@@ -226,10 +226,9 @@ class ReTests(unittest.TestCase):
                                'min repeat greater than max repeat', 2)
 
     def test_special_escapes(self):
-        self.assertEqual(re.search(r"\b(b.)\b",
-                                   "abcd abc bcd bx").group(1), "bx")
-        self.assertEqual(re.search(r"\B(b.)\B",
-                                   "abc bcd bc abxd").group(1), "bx")
+        self.assertEqual(re.search(r"\b(b.)\b", "abcd abc bcd bx")[1], "bx")
+
+        self.assertEqual(re.search(r"\B(b.)\B", "abc bcd bc abxd")[1], "bx")
 
     def test_other_escapes(self):
         self.checkPatternError("\\", 'bad escape (end of pattern)', 0)
@@ -245,8 +244,7 @@ class ReTests(unittest.TestCase):
 
     def test_string_boundaries(self):
         # See http://bugs.python.org/issue10713
-        self.assertEqual(re.search(r"\b(abc)\b", "abc").group(1),
-                         "abc")
+        self.assertEqual(re.search(r"\b(abc)\b", "abc")[1], "abc")
         # There's a word boundary at the start of a string.
         self.assertTrue(re.match(r"\b", "abc"))
         if include_failing:
@@ -282,18 +280,18 @@ class ReTests(unittest.TestCase):
             self.assertTrue(r.match('9999'))
 
     def test_lookahead(self):
-        self.assertEqual(re.match(r"(a(?=\s[^a]))", "a b").group(1), "a")
-        self.assertEqual(re.match(r"(a(?=\s[^a]*))", "a b").group(1), "a")
-        self.assertEqual(re.match(r"(a(?=\s[abc]))", "a b").group(1), "a")
-        self.assertEqual(re.match(r"(a(?=\s[abc]*))", "a bc").group(1), "a")
-        self.assertEqual(re.match(r"(a)(?=\s\1)", "a a").group(1), "a")
-        self.assertEqual(re.match(r"(a)(?=\s\1*)", "a aa").group(1), "a")
-        self.assertEqual(re.match(r"(a)(?=\s(abc|a))", "a a").group(1), "a")
+        self.assertEqual(re.match(r"(a(?=\s[^a]))", "a b")[1], "a")
+        self.assertEqual(re.match(r"(a(?=\s[^a]*))", "a b")[1], "a")
+        self.assertEqual(re.match(r"(a(?=\s[abc]))", "a b")[1], "a")
+        self.assertEqual(re.match(r"(a(?=\s[abc]*))", "a bc")[1], "a")
+        self.assertEqual(re.match(r"(a)(?=\s\1)", "a a")[1], "a")
+        self.assertEqual(re.match(r"(a)(?=\s\1*)", "a aa")[1], "a")
+        self.assertEqual(re.match(r"(a)(?=\s(abc|a))", "a a")[1], "a")
 
-        self.assertEqual(re.match(r"(a(?!\s[^a]))", "a a").group(1), "a")
-        self.assertEqual(re.match(r"(a(?!\s[abc]))", "a d").group(1), "a")
-        self.assertEqual(re.match(r"(a)(?!\s\1)", "a b").group(1), "a")
-        self.assertEqual(re.match(r"(a)(?!\s(abc|a))", "a b").group(1), "a")
+        self.assertEqual(re.match(r"(a(?!\s[^a]))", "a a")[1], "a")
+        self.assertEqual(re.match(r"(a(?!\s[abc]))", "a d")[1], "a")
+        self.assertEqual(re.match(r"(a)(?!\s\1)", "a b")[1], "a")
+        self.assertEqual(re.match(r"(a)(?!\s(abc|a))", "a b")[1], "a")
 
         # Group reference.
         self.assertTrue(re.match(r'(a)b(?=\1)a', 'aba'))
@@ -312,7 +310,7 @@ class ReTests(unittest.TestCase):
             self.assertTrue(re.match(r'(a)b(?=(?(1)c|x))(c)', 'abc'))
 
     def test_category(self):
-        self.assertEqual(re.match(r"(\s)", " ").group(1), " ")
+        self.assertEqual(re.match(r"(\s)", " ")[1], " ")
 
     def test_flags(self):
         flags = [re.I, re.M]

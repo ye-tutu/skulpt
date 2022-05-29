@@ -40,50 +40,36 @@ class TryExceptFinallyTest(unittest.TestCase):
             assert 1 > 10
         except AssertionError:
             error1 = "caught error"
-        except:
-            error1 = "missed error"
         self.assertEqual(error1, "caught error")
         try:
             error2 = None.notAnAttribute
         except AttributeError:
             error2 = "Caught AttributeError"
-        except:
-            error2 = "Did not catch AttributeError"
         self.assertEqual(error2, "Caught AttributeError")
         try:
             import notAModule
         except ImportError:
             error3 = "Caught ImportError"
-        except:
-            error3 = "Did not catch ImportError"
         self.assertEqual(error3, "Caught ImportError")
         try:
             error4 = [0,1,2,3,4][5]
         except IndexError:
             error4 = "Caught IndexError"
-        except:
-            error4 = "Did not catch IndexError"
         self.assertEqual(error4, "Caught IndexError")
         try:
             print({1:2, 3:4}[5])
         except KeyError:
             error5 = "Caught KeyError"
-        except:
-            error5 = "Did not catch KeyError"
         self.assertEqual(error5, "Caught KeyError")
         try:
             error6 = x
         except NameError:
             error6 = "Caught NameError"
-        except:
-            error6 = "Did not catch NameError"
         self.assertEqual(error6, "Caught NameError")
         try:
             print(0.0000000000000000000000000000000000000000000000000000000000000001**-30)
         except OverflowError:
             error7 = "Caught OverflowError"
-        except:
-            error7 = "Did not catch OverflowError"
         self.assertEqual(error7, "Caught OverflowError")
 
 

@@ -566,8 +566,10 @@ class TestPartialMethod(unittest.TestCase):
                 method = functools.partialmethod(func=capture, a=1)
 
     def test_repr(self):
-        self.assertEqual(repr(self.A.__dict__['both']),
-                         'functools.partialmethod({}, 3, b=4)'.format(capture))
+        self.assertEqual(
+            repr(self.A.__dict__['both']),
+            f'functools.partialmethod({capture}, 3, b=4)',
+        )
 
     # def test_abstract(self):
     #     class Abstract(abc.ABCMeta):
@@ -784,7 +786,7 @@ class TestReduce:
                 if not 0 <= i < self.max: raise IndexError
                 n = len(self.sofar)
                 while n <= i:
-                    self.sofar.append(n*n)
+                    self.sofar.append(n**2)
                     n += 1
                 return self.sofar[i]
         def add(x, y):
@@ -1177,9 +1179,7 @@ class TestCache:
     def test_cache(self):
         @self.module.cache
         def fib(n):
-            if n < 2:
-                return n
-            return fib(n-1) + fib(n-2)
+            return n if n < 2 else fib(n-1) + fib(n-2)
         self.assertEqual([fib(n) for n in range(16)],
             [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610])
         self.assertEqual(fib.cache_info(),
@@ -1414,9 +1414,7 @@ class TestLRU:
     def test_lru_with_maxsize_none(self):
         @self.module.lru_cache(maxsize=None)
         def fib(n):
-            if n < 2:
-                return n
-            return fib(n-1) + fib(n-2)
+            return n if n < 2 else fib(n-1) + fib(n-2)
         self.assertEqual([fib(n) for n in range(16)],
             [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610])
         self.assertEqual(fib.cache_info(),
@@ -1469,9 +1467,7 @@ class TestLRU:
     def test_lru_with_keyword_args(self):
         @self.module.lru_cache()
         def fib(n):
-            if n < 2:
-                return n
-            return fib(n=n-1) + fib(n=n-2)
+            return n if n < 2 else fib(n=n-1) + fib(n=n-2)
         self.assertEqual(
             [fib(n=number) for number in range(16)],
             [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]
@@ -1485,9 +1481,7 @@ class TestLRU:
     def test_lru_with_keyword_args_maxsize_none(self):
         @self.module.lru_cache(maxsize=None)
         def fib(n):
-            if n < 2:
-                return n
-            return fib(n=n-1) + fib(n=n-2)
+            return n if n < 2 else fib(n=n-1) + fib(n=n-2)
         self.assertEqual([fib(n=number) for number in range(16)],
             [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610])
         self.assertEqual(fib.cache_info(),

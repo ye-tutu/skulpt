@@ -45,10 +45,7 @@ class Name(unittest.TestCase):
     def test_None(self):
         self.assertFalse(None == False)
         flag = False
-        if not None:
-            flag = True
-        if None:
-            flag = False
+        flag = True
         self.assertTrue(flag)
 
     def test_numbers(self):

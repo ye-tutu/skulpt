@@ -28,8 +28,7 @@ class Ig:
         self.seqn = seqn
         self.i = 0
     def __iter__(self):
-        for val in self.seqn:
-            yield val
+        yield from self.seqn
 
 class X:
     'Missing __getitem__ and __iter__'
@@ -76,10 +75,7 @@ class EnumerateTestCase(unittest.TestCase):
             a.append(x)
         self.assertEqual(a, [(2, 14), (3, 8), (4, 2), (5, 'abc'), (6, -7)])
         def enumerate_helper(iterable,start=0):
-            x = []
-            for i in enumerate(iterable,start):
-                x.append(i)
-            return x
+            return list(enumerate(iterable,start))
         # list
         self.assertEqual(enumerate_helper([1,2,3,4]), [(0, 1), (1, 2), (2, 3), (3, 4)])
         self.assertEqual(enumerate_helper([1,2,3,4],10), [(10, 1), (11, 2), (12, 3), (13, 4)])

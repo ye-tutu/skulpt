@@ -149,17 +149,17 @@ class TestPEP380Operation(unittest.TestCase):
         def g1():
             trace.append("Starting g1")
             x = yield "g1 ham"
-            trace.append("g1 received %s" % (x,))
+            trace.append(f"g1 received {x}")
             yield from g2()
             x = yield "g1 eggs"
-            trace.append("g1 received %s" % (x,))
+            trace.append(f"g1 received {x}")
             trace.append("Finishing g1")
         def g2():
             trace.append("Starting g2")
             x = yield "g2 spam"
-            trace.append("g2 received %s" % (x,))
+            trace.append(f"g2 received {x}")
             x = yield "g2 more spam"
-            trace.append("g2 received %s" % (x,))
+            trace.append(f"g2 received {x}")
             trace.append("Finishing g2")
         g = g1()
         y = next(g)
@@ -193,19 +193,16 @@ class TestPEP380Operation(unittest.TestCase):
         def g1():
             trace.append("Starting g1")
             x = yield "g1 ham"
-            trace.append("g1 received %s" % (x,))
+            trace.append(f"g1 received {x}")
             yield from g2()
             x = yield "g1 eggs"
-            trace.append("g1 received %s" % (x,))
+            trace.append(f"g1 received {x}")
             trace.append("Finishing g1")
         def g2():
             trace.append("Starting g2")
             x = yield "g2 spam"
-            trace.append("g2 received %s" % (x,))
+            trace.append(f"g2 received {x}")
             raise ValueError("hovercraft is full of eels")
-            x = yield "g2 more spam"
-            trace.append("g2 received %s" % (x,))
-            trace.append("Finishing g2")
         def run():
             g = g1()
             y = next(g)
@@ -213,7 +210,7 @@ class TestPEP380Operation(unittest.TestCase):
             try:
                 while 1:
                     y = g.send(x)
-                    trace.append("Yielded %s" % (y,))
+                    trace.append(f"Yielded {y}")
                     x += 1
             except StopIteration:
                 trace.append("StopIteration")
@@ -347,8 +344,8 @@ class TestPEP380Operation(unittest.TestCase):
         """
         trace = []
         def pex(e):
-            trace.append("%s: %s" % (e.__class__.__name__, e))
-            trace.append("value = %s" % (e.value,))
+            trace.append(f"{e.__class__.__name__}: {e}")
+            trace.append(f"value = {e.value}")
         e = StopIteration()
         pex(e)
         e = StopIteration("spam")

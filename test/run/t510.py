@@ -29,9 +29,8 @@ class Counter:
     def next(self):
         if self.current > self.high:
             raise StopIteration
-        else:
-            self.current += 1
-            return self.current - 1
+        self.current += 1
+        return self.current - 1
 
 
 for c in Counter(9, 12):

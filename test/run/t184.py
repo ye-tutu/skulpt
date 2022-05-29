@@ -1,9 +1,7 @@
 def yrange(n):
-    for i in range(n):
-        yield i
+    yield from range(n)
 
 def zrange(n):
-    for y in yrange(n):
-        yield y
+    yield from yrange(n)
 
 print list(zrange(5))

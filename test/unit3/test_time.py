@@ -54,10 +54,7 @@ class TimeTestCase(unittest.TestCase):
             object.__setattr__(self, "x", 42)
 
           def __getattr__(self, attr):
-            if attr == "y":
-              return 41
-            else:
-              return 43
+              return 41 if attr == "y" else 43
 
         a = A()
         self.assertEqual(str(a.x), "42")
@@ -85,8 +82,7 @@ class TimeTestCase(unittest.TestCase):
             def __init__(self):
                 pass
             def generator(self):
-                for i in range(10):
-                    yield i
+                yield from range(10)
             def sleeping_generator(self):
                 for i in range(10):
                     time.sleep(0.01)

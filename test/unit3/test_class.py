@@ -543,7 +543,7 @@ class ClassTests(unittest.TestCase):
                 self.val1 = v
 
             def do(self):
-                return tuple([self.__class__.val1, self.val1])
+                return self.__class__.val1, self.val1
 
             def update(self, newv):
                 self.val1 = newv
@@ -711,11 +711,11 @@ class ClassTests(unittest.TestCase):
         class A(object):
             message = 'a'
             def test(self):
-                 return 'a>' + self.__class__.__name__
+                return f'a>{self.__class__.__name__}'
 
         class B(object):
             def test(self):
-                return 'b>' + self.__class__.__name__
+                return f'b>{self.__class__.__name__}'
 
         class C(A, B):
             def test(self):
@@ -802,7 +802,7 @@ class ClassTests(unittest.TestCase):
                 return self.value < other.value
          
             def __repr__(self):
-                return "Value :" + str(self.value)
+                return f"Value :{str(self.value)}"
          
         lst = [5,9,2,7]
         otherLst = [Comparable(a) for a in lst]

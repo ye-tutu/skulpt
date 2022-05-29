@@ -600,9 +600,10 @@ class TestCopy(unittest.TestCase):
 #         self._check_weakref(copy.deepcopy)
 
     def _check_copy_weakdict(self, _dicttype):
+
         class C(object):
             pass
-        a, b, c, d = [C() for i in range(4)]
+        a, b, c, d = [C() for _ in range(4)]
         u = _dicttype()
         u[a] = b
         u[c] = d

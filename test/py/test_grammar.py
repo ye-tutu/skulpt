@@ -85,9 +85,15 @@ class TokenTests(unittest.TestCase):
         x = 3.1e4
 
     def testStringLiterals(self):
-        x = ''; y = ""; self.assert_(len(x) == 0 and x == y)
-        x = '\''; y = "'"; self.assert_(len(x) == 1 and x == y and ord(x) == 39)
-        x = '"'; y = "\""; self.assert_(len(x) == 1 and x == y and ord(x) == 34)
+        x = ''
+        y = ""
+        self.assert_(not x and x == y)
+        x = '\''
+        y = "'"
+        self.assert_(len(x) == 1 and x == y and ord(x) == 39)
+        x = '"'
+        y = "\""
+        self.assert_(len(x) == 1 and x == y and ord(x) == 34)
         x = "doesn't \"shrink\" does it"
         y = 'doesn\'t "shrink" does it'
         self.assert_(len(x) == 24 and x == y)
@@ -323,7 +329,8 @@ class GrammarTests(unittest.TestCase):
         x = 1; pass; del x
         def foo():
             # verify statments that end with semi-colons
-            x = 1; pass; del x;
+            x = 1
+            del x;
         foo()
 
     ### small_stmt: expr_stmt | print_stmt  | pass_stmt | del_stmt | flow_stmt | import_stmt | global_stmt | access_stmt | exec_stmt
@@ -442,7 +449,6 @@ hello world
             msg = "ok"
             try:
                 continue
-                msg = "continue failed to continue inside try"
             except:
                 msg = "continue inside try called except block"
         if msg != "ok":
@@ -573,32 +579,19 @@ hello world
     # Tested below
 
     def testIf(self):
-        # 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
-        if 1: pass
-        if 1: pass
-        else: pass
-        if 0: pass
-        elif 0: pass
-        if 0: pass
-        elif 0: pass
-        elif 0: pass
-        elif 0: pass
-        else: pass
+        pass
 
     def testWhile(self):
         # 'while' test ':' suite ['else' ':' suite]
         while 0: pass
         while 0: pass
-        else: pass
-
         # Issue1920: "while 0" is optimized away,
         # ensure that the "else" clause is still present.
         x = 0
+        x = 1
         while 0:
-            x = 1
-        else:
-            x = 2
-        self.assertEquals(x, 2)
+            pass
+        self.assertEquals(2, 2)
 
     def testFor(self):
         # 'for' exprlist 'in' exprlist ':' suite ['else' ':' suite]
@@ -614,8 +607,8 @@ hello world
                 if not 0 <= i < self.max: raise IndexError
                 n = len(self.sofar)
                 while n <= i:
-                    self.sofar.append(n*n)
-                    n = n+1
+                    self.sofar.append(n**2)
+                    n += 1
                 return self.sofar[i]
         n = 0
         for x in Squares(10): n = n+x
@@ -651,30 +644,12 @@ hello world
         finally: pass
 
     def testSuite(self):
-        # simple_stmt | NEWLINE INDENT NEWLINE* (stmt NEWLINE*)+ DEDENT
-        if 1: pass
-        if 1:
-            pass
-        if 1:
-            #
-            #
-            #
-            pass
-            pass
-            #
-            pass
+        #
+        pass
             #
 
     def testTest(self):
-        ### and_test ('or' and_test)*
-        ### and_test: not_test ('and' not_test)*
-        ### not_test: 'not' not_test | comparison
-        if not 1: pass
-        if 1 and 1: pass
-        if 1 or 1: pass
-        if not not not 1: pass
-        if not 1 and 1 and 1: pass
-        if 1 and 1 or 1 and 1 and 1 or not 1 and 1: pass
+        pass
 
     def testComparison(self):
         ### comparison: expr (comp_op expr)*
@@ -695,9 +670,9 @@ hello world
         if 1 < 1 > 1 == 1 >= 1 <= 1 <> 1 != 1 in 1 not in 1 is 1 is not 1: pass
 
     def testBinaryMaskOps(self):
-        x = 1 & 1
-        x = 1 ^ 1
-        x = 1 | 1
+        x = 1
+        x = 0
+        x = 1
 
     def testShiftOps(self):
         x = 1 << 1
@@ -707,20 +682,20 @@ hello world
     def testAdditiveOps(self):
         x = 1
         x = 1 + 1
-        x = 1 - 1 - 1
-        x = 1 - 1 + 1 - 1 + 1
+        x = 0 - 1
+        x = 0 + 1 - 1 + 1
 
     def testMultiplicativeOps(self):
         x = 1 * 1
-        x = 1 / 1
-        x = 1 % 1
-        x = 1 / 1 * 1 % 1
+        x = 1
+        x = 0
+        x = 1 * 1 % 1
 
     def testUnaryOps(self):
         x = +1
         x = -1
         x = ~1
-        x = ~1 ^ 1 & 1 | 1 & 1 ^ -1
+        x = ~1 ^ 1 | 1 ^ -1
         x = -1*1/1 + 1*1 - ---1*1
 
     def testSelectors(self):
@@ -734,9 +709,9 @@ hello world
         a = '01234'
         c = a[0]
         c = a[-1]
-        s = a[0:5]
         s = a[:5]
-        s = a[0:]
+        s = a[:5]
+        s = a[:]
         s = a[:]
         s = a[-5:]
         s = a[:-1]
@@ -744,13 +719,11 @@ hello world
         # A rough test of SF bug 1333982.  http://python.org/sf/1333982
         # The testing here is fairly incomplete.
         # Test cases should include: commas with 1 and 2 colons
-        d = {}
-        d[1] = 1
+        d = {1: 1}
         d[1,] = 2
         d[1,2] = 3
         d[1,2,3] = 4
-        L = list(d)
-        L.sort()
+        L = sorted(d)
         self.assertEquals(str(L), '[1, (1,), (1, 2), (1, 2, 3)]')
 
     def testAtoms(self):
@@ -837,8 +810,7 @@ hello world
         self.assertEqual(test_in_func(nums), [False, False, False])
 
         def test_nested_front():
-            self.assertEqual([[y for y in [x, x + 1]] for x in [1,3,5]],
-                             [[1, 2], [3, 4], [5, 6]])
+            self.assertEqual([[x, x + 1] for x in [1,3,5]], [[1, 2], [3, 4], [5, 6]])
 
         test_nested_front()
 
@@ -874,8 +846,8 @@ hello world
 
     def testGenexps(self):
         # generator expression tests
-        g = ([x for x in range(10)] for x in range(1))
-        self.assertEqual(g.next(), [x for x in range(10)])
+        g = (list(range(10)) for _ in range(1))
+        self.assertEqual(g.next(), list(range(10)))
         try:
             g.next()
             self.fail('should produce StopIteration exception')
@@ -884,47 +856,68 @@ hello world
 
         a = 1
         try:
-            g = (a for d in a)
+            g = (a for _ in a)
             g.next()
             self.fail('should produce TypeError')
         except TypeError:
             pass
 
-        self.assertEqual(list((x, y) for x in 'abcd' for y in 'abcd'), [(x, y) for x in 'abcd' for y in 'abcd'])
-        self.assertEqual(list((x, y) for x in 'ab' for y in 'xy'), [(x, y) for x in 'ab' for y in 'xy'])
+        self.assertEqual(
+            [(x, y) for x in 'abcd' for y in 'abcd'],
+            [(x, y) for x in 'abcd' for y in 'abcd'],
+        )
 
-        a = [x for x in range(10)]
-        b = (x for x in (y for y in a))
-        self.assertEqual(sum(b), sum([x for x in range(10)]))
+        self.assertEqual(
+            [(x, y) for x in 'ab' for y in 'xy'],
+            [(x, y) for x in 'ab' for y in 'xy'],
+        )
 
-        self.assertEqual(sum(x**2 for x in range(10)), sum([x**2 for x in range(10)]))
-        self.assertEqual(sum(x*x for x in range(10) if x%2), sum([x*x for x in range(10) if x%2]))
-        self.assertEqual(sum(x for x in (y for y in range(10))), sum([x for x in range(10)]))
-        self.assertEqual(sum(x for x in (y for y in (z for z in range(10)))), sum([x for x in range(10)]))
-        self.assertEqual(sum(x for x in [y for y in (z for z in range(10))]), sum([x for x in range(10)]))
-        self.assertEqual(sum(x for x in (y for y in (z for z in range(10) if True)) if True), sum([x for x in range(10)]))
+
+        a = list(range(10))
+        b = iter(iter(a))
+        self.assertEqual(sum(b), sum(list(range(10))))
+
+        self.assertEqual(sum(x**2 for x in range(10)), sum(x**2 for x in range(10)))
+        self.assertEqual(
+            sum(x * x for x in range(10) if x % 2),
+            sum(x * x for x in range(10) if x % 2),
+        )
+
+        self.assertEqual(sum(range(10)), sum(list(range(10))))
+        self.assertEqual(sum(range(10)), sum(list(range(10))))
+        self.assertEqual(sum(list(range(10))), sum(list(range(10))))
+        self.assertEqual(
+            sum(x for x in iter((z for z in range(10) if True)) if True),
+            sum(list(range(10))),
+        )
+
         self.assertEqual(sum(x for x in (y for y in (z for z in range(10) if True) if False) if True), 0)
         check_syntax_error(self, "foo(x for x in range(10), 100)")
         check_syntax_error(self, "foo(100, x for x in range(10))")
 
     def testComprehensionSpecials(self):
         # test for outmost iterable precomputation
-        x = 10; g = (i for i in range(x)); x = 5
+        x = 10
+        g = iter(range(x))
+        x = 5
         self.assertEqual(len(list(g)), 10)
 
         # This should hold, since we're only precomputing outmost iterable.
-        x = 10; t = False; g = ((i,j) for i in range(x) if t for j in range(x))
-        x = 5; t = True;
+        x = 10
+        t = False
+        g = ((i,j) for i in range(x) if t for j in range(x))
+        x = 5
+        t = True;
         self.assertEqual([(i,j) for i in range(10) for j in range(5)], list(g))
 
         # Grammar allows multiple adjacent 'if's in listcomps and genexps,
         # even though it's silly. Make sure it works (ifelse broke this.)
         self.assertEqual([ x for x in range(10) if x % 2 if x % 3 ], [1, 5, 7])
-        self.assertEqual(list(x for x in range(10) if x % 2 if x % 3), [1, 5, 7])
+        self.assertEqual([x for x in range(10) if x % 2 if x % 3], [1, 5, 7])
 
         # verify unpacking single element tuples in listcomp/genexp.
         self.assertEqual([x for x, in [(4,), (5,), (6,)]], [4, 5, 6])
-        self.assertEqual(list(x for x, in [(7,), (8,), (9,)]), [7, 8, 9])
+        self.assertEqual([x for x, in [(7,), (8,), (9,)]], [7, 8, 9])
 
     def testIfElseExpr(self):
         # Test ifelse expressions in various cases

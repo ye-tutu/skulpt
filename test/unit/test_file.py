@@ -25,19 +25,13 @@ class FileTests(unittest.TestCase):
     def test_iter(self):
         F=open("test/unit/file.txt")
         header=F.readline()
-        res = ""
-        for line in F:
-            res += line.strip()
-
+        res = "".join(line.strip() for line in F)
         self.assertEqual("23",res)
 
     def test_iter2(self):
         F=open("test/unit/file.txt")
         header=F.readline()
-        res = ""
-        for line in F.readlines():
-            res += line.strip()
-
+        res = "".join(line.strip() for line in F.readlines())
         self.assertEqual("23",res)
 
 

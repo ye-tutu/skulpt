@@ -9,9 +9,8 @@ p26root = '/System/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.
 def make_stub(fname,fpath):
     modname = fname.replace('.py','')
     if modname not in mymodules:
-        f = open(fpath, 'w')
-        f.write('''import _sk_fail; _sk_fail._(%r)\n''' % modname)
-        f.close()
+        with open(fpath, 'w') as f:
+            f.write('''import _sk_fail; _sk_fail._(%r)\n''' % modname)
 
 
 for root, dirs, files in os.walk(p26root):

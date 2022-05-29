@@ -94,9 +94,7 @@ def _main():
     import sys
     args = sys.argv[1:]
     inFileName = args and args[0] or "Include/token.h"
-    outFileName = "Lib/token.py"
-    if len(args) > 1:
-        outFileName = args[1]
+    outFileName = args[1] if len(args) > 1 else "Lib/token.py"
     try:
         fp = open(inFileName)
     except OSError as err:
@@ -109,8 +107,7 @@ def _main():
         re.IGNORECASE)
     tokens = {}
     for line in lines:
-        match = prog.match(line)
-        if match:
+        if match := prog.match(line):
             name, val = match.group(1, 2)
             val = int(val)
             tokens[val] = name          # reverse so we can sort them...
@@ -130,8 +127,7 @@ def _main():
         sys.stderr.write("target does not contain format markers")
         sys.exit(3)
     lines = []
-    for val in keys:
-        lines.append("%s = %d" % (tokens[val], val))
+    lines.extend("%s = %d" % (tokens[val], val) for val in keys)
     format[start:end] = lines
     try:
         fp = open(outFileName, 'w')
